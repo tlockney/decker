@@ -17,5 +17,8 @@ export { StreamDeckDevice } from "./src/devices/stream_deck_device.ts";
 // Re-export CLI tools
 export * from "./src/cli/mod.ts";
 
+// Re-export configuration system
+export * from "./src/config/mod.ts";
+
 // Re-export utility functions
 export * from "./src/utils/utils.ts";

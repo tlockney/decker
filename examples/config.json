@@ -1,0 +1,55 @@
+{
+  "devices": {
+    "SAMPLE_SERIAL_NUMBER": {
+      "name": "My Stream Deck",
+      "default_page": "default",
+      "pages": {
+        "default": {
+          "buttons": {
+            "0": {
+              "type": "launch_app",
+              "path": "/Applications/Calculator.app",
+              "text": "Calc",
+              "color": "#0000FF"
+            },
+            "1": {
+              "type": "script",
+              "script": "/usr/bin/say",
+              "args": ["Hello, World!"],
+              "text": "Say Hello",
+              "color": "#FF0000"
+            },
+            "2": {
+              "type": "page_switch",
+              "target_page": "second_page",
+              "text": "Next Page",
+              "color": "#00FF00"
+            }
+          }
+        },
+        "second_page": {
+          "buttons": {
+            "0": {
+              "type": "page_switch",
+              "target_page": "default",
+              "text": "Back",
+              "color": "#AAAAAA"
+            },
+            "1": {
+              "type": "http",
+              "method": "GET",
+              "url": "https://example.com/api/status",
+              "text": "API Status",
+              "color": "#00FFFF"
+            }
+          }
+        }
+      }
+    }
+  },
+  "global_settings": {
+    "log_file": "decker.log",
+    "log_level": "info"
+  },
+  "version": "1.0.0"
+}
