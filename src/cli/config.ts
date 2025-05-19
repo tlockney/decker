@@ -9,6 +9,7 @@
 
 import { ConfigLoader, DEFAULT_CONFIG_FILENAME } from "../config/loader.ts";
 import { DeckerConfig } from "../config/schema.ts";
+import { ConfigValidator } from "../config/validator.ts";
 import { NAME, VERSION } from "../version.ts";
 import { join } from "@std/path";
 
@@ -26,18 +27,24 @@ function displayHelp(): void {
   Usage: config.ts [options] <command>
   
   Commands:
-    init [path]      Create a new configuration file
-    validate [path]  Validate an existing configuration file
-    info [path]      Show information about a configuration file
+    init [path]                    Create a new configuration file
+    validate [path] [--path <key>] Validate an existing configuration file
+    info [path]                    Show information about a configuration file
+    schema [output_path]           Generate JSON Schema for configuration validation
     
   Options:
-    --help, -h       Show this help message
+    --help, -h                     Show this help message
+    --path <key>                   Validate a specific path within the configuration
     
   Examples:
-    config.ts init                # Create a new configuration in the current directory
-    config.ts init my-config.json # Create a new configuration at the specified path
-    config.ts validate            # Validate the configuration in standard locations
-    config.ts info                # Show information about the loaded configuration
+    config.ts init                        # Create a new configuration in the current directory
+    config.ts init my-config.json         # Create a new configuration at the specified path
+    config.ts validate                    # Validate the entire configuration
+    config.ts validate --path devices     # Validate only the devices section
+    config.ts validate --path devices.ABC123.pages.main  # Validate a specific page
+    config.ts info                        # Show information about the loaded configuration
+    config.ts schema                      # Print schema to console
+    config.ts schema schema.json          # Save schema to file
   `);
 }
 
@@ -81,26 +88,100 @@ async function initializeConfig(configPath?: string): Promise<void> {
   }
 }
 
+// ANSI color codes for terminal output
+const colors = {
+  reset: "\x1b[0m",
+  green: "\x1b[32m",
+  red: "\x1b[31m",
+  yellow: "\x1b[33m",
+  blue: "\x1b[34m",
+  magenta: "\x1b[35m",
+  cyan: "\x1b[36m",
+  bold: "\x1b[1m",
+};
+
 // Validate a configuration file
-async function validateConfig(configPath?: string): Promise<void> {
+async function validateConfig(configPath?: string, path?: string): Promise<void> {
   const loader = new ConfigLoader();
+  const validator = new ConfigValidator();
+  let errorCount = 0;
 
   try {
     // Load the configuration
     const result = await loader.loadConfig(configPath);
+    console.log(`Validating configuration from: ${colors.cyan}${result.configPath}${colors.reset}`);
 
-    // Basic structural validation
-    if (!result.config.devices) {
-      console.error("Error: Invalid configuration - missing 'devices' property");
-      Deno.exit(1);
+    if (path) {
+      // Validate a specific path within the configuration
+      console.log(`\nValidating path: ${colors.blue}${path}${colors.reset}`);
+
+      try {
+        // Check if the path exists before validating
+        const parts = path.split(".");
+        let currentValue: unknown = result.config;
+
+        for (const part of parts) {
+          if (currentValue == null || typeof currentValue !== "object") {
+            console.log(
+              `${colors.red}Error:${colors.reset} Path ${colors.blue}${path}${colors.reset} not found in configuration`,
+            );
+            Deno.exit(1);
+          }
+          currentValue = (currentValue as Record<string, unknown>)[part];
+        }
+
+        const pathResults = validator.validatePaths(result.config, [path]);
+        const pathResult = pathResults[path];
+
+        if (pathResult.valid) {
+          console.log(
+            `\n${colors.green}✓ Success:${colors.reset} Configuration path '${colors.blue}${path}${colors.reset}' is valid.`,
+          );
+        } else {
+          console.log(
+            `\n${colors.red}✗ Error:${colors.reset} Configuration path '${colors.blue}${path}${colors.reset}' is invalid:`,
+          );
+          pathResult.errors.forEach((error, index) => {
+            console.log(`  ${colors.bold}${index + 1}.${colors.reset} ${error}`);
+            errorCount++;
+          });
+        }
+      } catch (error) {
+        console.log(
+          `${colors.red}Error:${colors.reset} Unable to validate path ${colors.blue}${path}${colors.reset}`,
+        );
+        if (error instanceof Error) {
+          console.log(`  ${colors.red}→${colors.reset} ${error.message}`);
+        }
+        errorCount++;
+      }
+    } else {
+      // Validate the entire configuration
+      console.log(`\nValidating full configuration...`);
+      const validationResult = validator.validateWithDetails(result.config);
+
+      if (validationResult.valid) {
+        console.log(`\n${colors.green}✓ Success:${colors.reset} Configuration is valid.`);
+      } else {
+        console.log(`\n${colors.red}✗ Error:${colors.reset} Configuration has validation errors:`);
+        validationResult.errors.forEach((error, index) => {
+          console.log(`  ${colors.bold}${index + 1}.${colors.reset} ${error}`);
+          errorCount++;
+        });
+      }
     }
 
-    // More detailed validation will be implemented in the validator module
-
-    console.log(`Configuration file at ${result.configPath} is valid.`);
+    // Summary
+    console.log("\nValidation Summary:");
+    if (errorCount > 0) {
+      console.log(`${colors.red}Found ${errorCount} errors${colors.reset}`);
+      Deno.exit(1);
+    } else {
+      console.log(`${colors.green}No errors found${colors.reset}`);
+    }
   } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error(String(err));
-    console.error(`Error validating configuration: ${error.message}`);
+    console.error(`\n${colors.red}Error validating configuration:${colors.reset} ${error.message}`);
     Deno.exit(1);
   }
 }
@@ -149,6 +230,33 @@ async function showConfigInfo(configPath?: string): Promise<void> {
   }
 }
 
+// Generate and export the JSON schema for configuration
+async function generateSchema(outputPath?: string): Promise<void> {
+  const validator = new ConfigValidator();
+
+  try {
+    // Generate the schema
+    const schema = validator.generateJsonSchema();
+    const schemaJson = JSON.stringify(schema, null, 2);
+
+    if (outputPath) {
+      // Save to file
+      await Deno.writeTextFile(outputPath, schemaJson);
+      console.log(
+        `${colors.green}✓ Success:${colors.reset} Schema exported to ${colors.cyan}${outputPath}${colors.reset}`,
+      );
+    } else {
+      // Print to console
+      console.log(`${colors.cyan}Schema:${colors.reset}`);
+      console.log(schemaJson);
+    }
+  } catch (err: unknown) {
+    const error = err instanceof Error ? err : new Error(String(err));
+    console.error(`${colors.red}Error generating schema:${colors.reset} ${error.message}`);
+    Deno.exit(1);
+  }
+}
+
 // Main function
 async function main(): Promise<void> {
   displayBanner();
@@ -176,12 +284,25 @@ async function main(): Promise<void> {
       await initializeConfig(configPath);
       break;
 
-    case "validate":
-      await validateConfig(configPath);
+    case "validate": {
+      let pathToValidate: string | undefined = undefined;
+
+      // Check for --path parameter
+      const pathIndex = args.indexOf("--path");
+      if (pathIndex !== -1 && args.length > pathIndex + 1) {
+        pathToValidate = args[pathIndex + 1];
+      }
+
+      await validateConfig(configPath, pathToValidate);
       break;
+    }
 
     case "info":
       await showConfigInfo(configPath);
+      break;
+
+    case "schema":
+      await generateSchema(configPath);
       break;
 
     case "--help":
