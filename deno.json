@@ -2,9 +2,9 @@
   "tasks": {
     "dev": "deno run --watch main.ts"
   },
-	"nodeModulesDir": "auto",
+  "nodeModulesDir": "auto",
   "imports": {
     "@elgato-stream-deck/node": "npm:@elgato-stream-deck/node@^7.1.2",
     "@julusian/jpeg-turbo": "npm:@julusian/jpeg-turbo@^2.2.0"
-	}
+  }
 }

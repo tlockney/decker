@@ -1,10 +1,14 @@
 # Decker
 
-A lightweight, code-configurable Stream Deck management application built with Deno and TypeScript.
+A lightweight, code-configurable Stream Deck management application built with
+Deno and TypeScript.
 
 ## Overview
 
-Decker provides a JSON-based configuration system for controlling Elgato Stream Deck devices without using the default Elgato software. It supports multiple connected devices, custom actions, and a modular approach to Stream Deck management.
+Decker provides a JSON-based configuration system for controlling Elgato Stream
+Deck devices without using the default Elgato software. It supports multiple
+connected devices, custom actions, and a modular approach to Stream Deck
+management.
 
 ## Features
 

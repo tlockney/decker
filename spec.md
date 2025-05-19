@@ -1,21 +1,27 @@
 # Stream Deck Manager Specification
 
 ## Overview
-A lightweight, code-configurable Stream Deck management application that replaces the default Elgato software. The application will use a JSON-based configuration system to control multiple connected Stream Deck devices.
+
+A lightweight, code-configurable Stream Deck management application that
+replaces the default Elgato software. The application will use a JSON-based
+configuration system to control multiple connected Stream Deck devices.
 
 ## Core Requirements
 
 ### Device Management
+
 - Support for multiple connected Stream Deck devices
 - Identification of devices via serial number
 - Tool to enumerate connected devices and help identify them physically
 
 ### Configuration System
+
 - Single JSON configuration file for all devices (initially)
 - Direct JSON editing (no GUI required)
 - Eventually hot-reloadable configuration (not required for initial version)
 
 ### Button/Dial Functions
+
 - Support for launching applications
 - Running scripts/executables via file paths
 - Media control capabilities
@@ -24,27 +30,32 @@ A lightweight, code-configurable Stream Deck management application that replace
 - Future extension via loadable external modules
 
 ### Visual Elements
+
 - State-aware button images (update based on state)
 - Button colors and background customization
 - Dynamic text on buttons
 - Simple text/image display for LCD screens
 
 ### State Management
+
 - Each button maintains individual state
 - Access to global application state
 - Access to state of other Stream Deck devices
 - Support for "views" or "pages" to swap interfaces
 
 ### Feedback and Error Handling
+
 - Action-determined feedback
 - JSON-formatted return values from scripts
 - Error logging to file
 
 ### Platform Support
+
 - Primary: macOS
 - Future: Linux (for Raspberry Pi deployment)
 
 ### Architecture
+
 - Standalone application (vs client-server)
 - Manual activation via Stream Deck
 - External activation through HTTP/MQTT endpoints
@@ -52,6 +63,7 @@ A lightweight, code-configurable Stream Deck management application that replace
 ## Technical Implementation
 
 ### Tech Stack
+
 - **Language**: TypeScript
 - **Runtime**: Deno
 - **Libraries**:
@@ -61,6 +73,7 @@ A lightweight, code-configurable Stream Deck management application that replace
   - Additional libraries as needed for HTTP/MQTT functionality
 
 ### Development Practices
+
 - Test-Driven Development (TDD) approach
 - All code must pass linting and formatting checks
 - Version control with Git
@@ -68,6 +81,7 @@ A lightweight, code-configurable Stream Deck management application that replace
 - Clear documentation and examples
 
 ### Code Organization
+
 - Modular architecture with clear separation of concerns
 - Core subsystems:
   - Device management
@@ -78,6 +92,7 @@ A lightweight, code-configurable Stream Deck management application that replace
   - API integrations
 
 ### Testing Strategy
+
 - Unit tests for core functionality
 - Integration tests for device interactions
 - Mock devices for testing without hardware
@@ -86,6 +101,7 @@ A lightweight, code-configurable Stream Deck management application that replace
 ## Detailed Specifications
 
 ### Configuration Structure
+
 ```json
 {
   "devices": {
@@ -128,8 +144,8 @@ A lightweight, code-configurable Stream Deck management application that replace
               "type": "http",
               "method": "POST",
               "url": "https://api.example.com/endpoint",
-              "headers": {"Content-Type": "application/json"},
-              "body": {"key": "value"},
+              "headers": { "Content-Type": "application/json" },
+              "body": { "key": "value" },
               "text": "API Call"
             }
           },
@@ -156,7 +172,7 @@ A lightweight, code-configurable Stream Deck management application that replace
     }
     // Additional devices...
   },
-  
+
   "global_settings": {
     "log_file": "/path/to/logfile.log",
     "log_level": "info"
@@ -165,6 +181,7 @@ A lightweight, code-configurable Stream Deck management application that replace
 ```
 
 ### Action Response Format
+
 Actions can return JSON-formatted responses to provide feedback:
 
 ```json
@@ -179,12 +196,16 @@ Actions can return JSON-formatted responses to provide feedback:
 ```
 
 ### HTTP/MQTT Integration
+
 The application will support sending/receiving via:
+
 - HTTP requests with customizable headers, methods, and body
 - MQTT publish/subscribe with topic configuration
 
 ### Device Detection Tool
+
 A utility for identifying physical devices:
+
 ```
 > decker list
 Found 2 devices:
@@ -198,6 +219,7 @@ Flashing buttons on device ABC123 for identification
 ## Development Phases
 
 ### Phase 1 - Core Functionality
+
 - Basic device connection and identification
 - JSON configuration parsing
 - Button image and text display
@@ -205,6 +227,7 @@ Flashing buttons on device ABC123 for identification
 - Basic page switching
 
 ### Phase 2 - Enhanced Features
+
 - HTTP/MQTT integration
 - Inline code execution
 - State-based button appearance
@@ -212,6 +235,7 @@ Flashing buttons on device ABC123 for identification
 - Error logging
 
 ### Phase 3 - Advanced Features
+
 - Hot-reloading configuration
 - External module support
 - Linux/Raspberry Pi support
