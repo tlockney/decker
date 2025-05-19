@@ -8,7 +8,7 @@
 - [x] Create device identification tool
 
 ### Configuration System
-- [ ] Define configuration schema
+- [x] Define configuration schema
 - [ ] Implement configuration loading and parsing
 - [ ] Add configuration validation
 
