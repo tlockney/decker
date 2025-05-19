@@ -3,3 +3,4 @@
  */
 
 export * from "./identify.ts";
+export * from "./config.ts";

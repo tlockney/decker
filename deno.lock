@@ -2,7 +2,9 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/assert@0.220.1": "0.220.1",
+    "jsr:@std/assert@~0.220.1": "0.220.1",
     "jsr:@std/fmt@~0.220.1": "0.220.1",
+    "jsr:@std/path@0.220.1": "0.220.1",
     "npm:@elgato-stream-deck/node@^7.1.2": "7.1.2",
     "npm:@julusian/jpeg-turbo@^2.2.0": "2.2.0",
     "npm:@types/node@*": "22.14.0",
@@ -17,6 +19,12 @@
     },
     "@std/fmt@0.220.1": {
       "integrity": "3b1a698477a26b1dacbbee26db1a65030a005c6d71db3b3a0e59f8a638f04d7a"
+    },
+    "@std/path@0.220.1": {
+      "integrity": "cc63c1b5e5192e2f718dc2f365a3514fffb26cc0380959bab0f8fb5988a52f0c",
+      "dependencies": [
+        "jsr:@std/assert@~0.220.1"
+      ]
     }
   },
   "npm": {

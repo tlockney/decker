@@ -7,6 +7,7 @@
     "fmt": "deno fmt",
     "check": "deno check --no-lock main.ts mod.ts src/**/*.ts examples/**/*.ts",
     "identify": "deno run --allow-all src/cli/identify.ts",
+    "config": "deno run --allow-all src/cli/config.ts",
     "install-hooks": "./scripts/install-hooks.sh"
   },
   "nodeModulesDir": "auto",

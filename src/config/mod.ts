@@ -8,6 +8,8 @@
 // Export schema interfaces
 export * from "./schema.ts";
 
-// These will be implemented in later steps
-// export * from "./loader.ts";
+// Export loader
+export * from "./loader.ts";
+
+// This will be implemented in a later step
 // export * from "./validator.ts";
