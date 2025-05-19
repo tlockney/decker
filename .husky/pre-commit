@@ -1,0 +1,28 @@
+#!/bin/sh
+# Decker pre-commit hook
+
+echo "Running deno fmt check..."
+deno fmt --check || {
+  echo "Formatting check failed. Run 'deno fmt' to fix the formatting issues."
+  exit 1
+}
+
+echo "Running deno lint..."
+deno lint || {
+  echo "Linting failed. Fix the linting issues before committing."
+  exit 1
+}
+
+echo "Running deno check..."
+deno check --no-lock main.ts mod.ts src/**/*.ts examples/**/*.ts || {
+  echo "Type checking failed. Fix the type errors before committing."
+  exit 1
+}
+
+echo "Running tests..."
+deno test --allow-all || {
+  echo "Tests failed. Fix the failing tests before committing."
+  exit 1
+}
+
+echo "Pre-commit checks passed!"

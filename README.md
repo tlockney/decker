@@ -27,6 +27,22 @@ This project is built using Deno. To run the development version:
 deno task dev
 ```
 
+### Git Hooks
+
+The project uses Git hooks to ensure code quality. Install the hooks with:
+
+```bash
+deno task install-hooks
+```
+
+These hooks will automatically run before each commit to verify:
+- Code formatting (`deno fmt --check`)
+- Linting (`deno lint`)
+- Type checking (`deno check`)
+- Tests (`deno test`)
+
+If any check fails, the commit will be aborted with an error message.
+
 See the [spec.md](spec.md) file for detailed specifications and roadmap.
 
 ## Requirements
