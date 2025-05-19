@@ -5,10 +5,7 @@
  * require significant mocking of native device functionality.
  */
 
-import {
-  assertEquals,
-  assertExists,
-} from "https://deno.land/std@0.220.1/assert/mod.ts";
+import { assertEquals, assertExists } from "https://deno.land/std@0.220.1/assert/mod.ts";
 import { DeviceManager } from "./device_manager.ts";
 
 // Since we can't effectively mock the device communication without more complex setup,

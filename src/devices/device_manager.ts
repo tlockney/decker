@@ -4,16 +4,11 @@
  * Handles detection, connection, and management of Stream Deck devices.
  */
 
-import {
-  listStreamDecks,
-  openStreamDeck,
-  // deno-lint-ignore no-unused-vars
-  StreamDeck as ElgatoStreamDeck,
-  StreamDeckInfo as ElgatoStreamDeckInfo,
-} from "@elgato-stream-deck/node";
+import { listStreamDecks, openStreamDeck } from "@elgato-stream-deck/node";
 import { EventEmitter } from "node:events";
 import { StreamDeckDevice } from "./stream_deck_device.ts";
-import { DeviceEventType, StreamDeckInfo } from "../types/types.ts";
+import { StreamDeck, StreamDeckDeviceInfo } from "../../types/stream-deck.d.ts";
+import { DeviceConnectedEvent, DeviceEventType, StreamDeckInfo } from "../types/types.ts";
 
 /**
  * Manager for Stream Deck devices.
@@ -85,7 +80,7 @@ export class DeviceManager extends EventEmitter {
       const connectedDevices = await listStreamDecks();
       const currentSerials = new Set(this.devices.keys());
       const connectedSerials = new Set(
-        connectedDevices.map((dev) => dev.serialNumber),
+        connectedDevices.map((dev) => dev.serialNumber || ""),
       );
 
       // Find disconnected devices
@@ -98,13 +93,23 @@ export class DeviceManager extends EventEmitter {
       // Find new devices
       const newDevices: StreamDeckInfo[] = [];
       for (const deviceInfo of connectedDevices) {
-        if (!currentSerials.has(deviceInfo.serialNumber)) {
-          const info = this.convertDeviceInfo(deviceInfo);
+        const serialNumber = deviceInfo.serialNumber || "";
+        if (serialNumber && !currentSerials.has(serialNumber)) {
+          // Convert the deviceInfo to our custom type format
+          const customDeviceInfo: StreamDeckDeviceInfo = {
+            path: deviceInfo.path,
+            serialNumber: deviceInfo.serialNumber || "",
+            model: "Stream Deck", // Will get more accurate info when we open
+            columns: 0, // Will be set properly when we open the device
+            rows: 0, // Will be set properly when we open the device
+            keys: 0, // Will be set properly when we open the device
+          };
+          const info = this.convertDeviceInfo(customDeviceInfo);
           newDevices.push(info);
 
           if (autoConnect) {
             await this.connectToDevice(
-              deviceInfo.serialNumber,
+              serialNumber,
               deviceInfo.path,
             );
           }
@@ -153,9 +158,7 @@ export class DeviceManager extends EventEmitter {
     // Find the device path if not provided
     if (!path) {
       const devices = await listStreamDecks();
-      const deviceInfo = devices.find((dev) =>
-        dev.serialNumber === serialNumber
-      );
+      const deviceInfo = devices.find((dev) => dev.serialNumber === serialNumber);
       if (!deviceInfo) {
         throw new Error(`Device with serial number ${serialNumber} not found`);
       }
@@ -164,14 +167,29 @@ export class DeviceManager extends EventEmitter {
 
     // Open the device
     try {
-      const streamDeck = await openStreamDeck(path);
+      const rawStreamDeck = await openStreamDeck(path);
+
+      // Extract model, columns, rows, and keys from the raw device
+      // The @elgato-stream-deck/node library uses different property names
+      // than what our types expect, so we need to extract them
+      // deno-lint-ignore no-explicit-any
+      const rawDeck = rawStreamDeck as any;
+      const model = rawDeck.MODEL || "Stream Deck";
+      const columns = rawDeck.NUM_COLUMNS || 5;
+      const rows = rawDeck.NUM_ROWS || 3;
+      const keys = rawDeck.NUM_KEYS || 15;
+
+      // Map the raw device to our interface
+      const streamDeck = rawStreamDeck as unknown as StreamDeck;
+
+      // Create our device info object
       const deviceInfo = this.convertDeviceInfo({
         path,
         serialNumber,
-        model: streamDeck.MODEL,
-        columns: streamDeck.NUM_COLUMNS,
-        rows: streamDeck.NUM_ROWS,
-        keys: streamDeck.NUM_KEYS,
+        model,
+        columns,
+        rows,
+        keys,
       });
 
       // Create device wrapper
@@ -184,7 +202,11 @@ export class DeviceManager extends EventEmitter {
       });
 
       // Emit connected event
-      this.emit(DeviceEventType.DEVICE_CONNECTED, deviceInfo);
+      const connectedEvent: DeviceConnectedEvent = {
+        ...deviceInfo,
+        type: DeviceEventType.DEVICE_CONNECTED,
+      };
+      this.emit(DeviceEventType.DEVICE_CONNECTED, connectedEvent);
 
       return device;
     } catch (error) {
@@ -202,7 +224,11 @@ export class DeviceManager extends EventEmitter {
     if (device) {
       await device.close();
       this.devices.delete(serialNumber);
-      this.emit(DeviceEventType.DEVICE_DISCONNECTED, { serialNumber });
+      this.emit(DeviceEventType.DEVICE_DISCONNECTED, {
+        deviceSerial: serialNumber,
+        timestamp: Date.now(),
+        type: DeviceEventType.DEVICE_DISCONNECTED,
+      });
     }
   }
 
@@ -240,23 +266,23 @@ export class DeviceManager extends EventEmitter {
   }
 
   /**
-   * Converts ElgatoStreamDeckInfo to our StreamDeckInfo type.
-   * @param info The Elgato device info.
+   * Converts StreamDeckDeviceInfo to our StreamDeckInfo type.
+   * @param info The Stream Deck device info.
    * @returns Our StreamDeckInfo format.
    */
-  private convertDeviceInfo(info: ElgatoStreamDeckInfo): StreamDeckInfo {
+  private convertDeviceInfo(info: StreamDeckDeviceInfo): StreamDeckInfo {
     return {
-      serialNumber: info.serialNumber,
-      type: info.model,
-      buttonCount: info.keys,
+      serialNumber: info.serialNumber || "",
+      type: info.model || "",
+      buttonCount: info.keys || 0,
       layout: {
-        columns: info.columns,
-        rows: info.rows,
+        columns: info.columns || 0,
+        rows: info.rows || 0,
       },
       // Determine features based on device type
-      hasDials: info.model.includes("Stream Deck+"),
-      hasLCD: info.model.includes("Stream Deck+") ||
-        info.model.includes("Stream Deck Touch"),
+      hasDials: (info.model || "").includes("Stream Deck+"),
+      hasLCD: (info.model || "").includes("Stream Deck+") ||
+        (info.model || "").includes("Stream Deck Touch"),
     };
   }
 }

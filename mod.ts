@@ -14,5 +14,8 @@ export * from "./src/version.ts";
 export { DeviceManager } from "./src/devices/device_manager.ts";
 export { StreamDeckDevice } from "./src/devices/stream_deck_device.ts";
 
+// Re-export CLI tools
+export * from "./src/cli/mod.ts";
+
 // Re-export utility functions
 export * from "./src/utils/utils.ts";

@@ -4,20 +4,18 @@
  * Provides an interface for interacting with a single Stream Deck device.
  */
 
+import { EventEmitter } from "node:events";
+import { Buffer } from "node:buffer";
 import {
   DialDownEvent,
   DialRotateEvent,
   DialUpEvent,
   KeyDownEvent,
   KeyUpEvent,
-  StreamDeck as ElgatoStreamDeck,
-} from "@elgato-stream-deck/node";
-import { EventEmitter } from "node:events";
-import { Buffer } from "node:buffer";
+  StreamDeck,
+} from "../../types/stream-deck.d.ts";
 import {
   ButtonEvent,
-  // deno-lint-ignore no-unused-vars
-  DeviceEvent,
   DeviceEventType,
   DialPressEvent,
   DialRotationEvent,
@@ -28,16 +26,16 @@ import {
  * Wraps a Stream Deck device, providing a clean interface for interacting with it.
  */
 export class StreamDeckDevice extends EventEmitter {
-  private streamDeck: ElgatoStreamDeck;
+  private streamDeck: StreamDeck;
   private info: StreamDeckInfo;
   private isConnected = true;
 
   /**
    * Creates a new StreamDeckDevice.
-   * @param streamDeck The underlying Elgato Stream Deck device.
+   * @param streamDeck The underlying Stream Deck device.
    * @param info Information about the device.
    */
-  constructor(streamDeck: ElgatoStreamDeck, info: StreamDeckInfo) {
+  constructor(streamDeck: StreamDeck, info: StreamDeckInfo) {
     super();
     this.streamDeck = streamDeck;
     this.info = info;
@@ -204,7 +202,7 @@ export class StreamDeckDevice extends EventEmitter {
       this.isConnected = false;
       await this.streamDeck.clearPanel();
       this.streamDeck.removeAllListeners();
-      this.streamDeck = null as unknown as ElgatoStreamDeck;
+      this.streamDeck = null as unknown as StreamDeck;
       this.removeAllListeners();
     } catch (error) {
       console.error(`Error closing device ${this.info.serialNumber}:`, error);

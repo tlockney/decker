@@ -56,6 +56,20 @@ export interface DeviceEvent {
 }
 
 /**
+ * Event emitted when a device is disconnected.
+ */
+export interface DeviceDisconnectedEvent extends DeviceEvent {
+  type: DeviceEventType.DEVICE_DISCONNECTED;
+}
+
+/**
+ * Event emitted when a device is connected.
+ */
+export interface DeviceConnectedEvent extends StreamDeckInfo {
+  type: DeviceEventType.DEVICE_CONNECTED;
+}
+
+/**
  * Event emitted when a button is pressed or released.
  */
 export interface ButtonEvent extends DeviceEvent {
