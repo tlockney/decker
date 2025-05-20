@@ -33,7 +33,7 @@ device.clearButton(buttonIndex);
 
 // Clear all buttons
 device.clearAllButtons();
-```
+```text
 
 ### Event Handling
 
@@ -52,7 +52,7 @@ device.on(DeviceEventType.DIAL_RELEASED, (event) => { /* ... */ });
 // Device events
 deviceManager.on(DeviceEventType.DEVICE_CONNECTED, (event) => { /* ... */ });
 deviceManager.on(DeviceEventType.DEVICE_DISCONNECTED, (event) => { /* ... */ });
-```
+```text
 
 ### Device Management
 
@@ -77,7 +77,7 @@ await deviceManager.disconnectDevice(serialNumber);
 
 // Close all devices
 await deviceManager.close();
-```
+```text
 
 ## CLI Tools
 
@@ -100,7 +100,7 @@ deno task identify:sequence
 
 # Fade mode - fade all buttons through colors
 deno task identify:fade
-```
+```text
 
 ### Configuration Management
 
@@ -116,13 +116,13 @@ deno task config:info
 
 # Generate schema
 deno task config:schema
-```
+```text
 
 ## Project Structure
 
 The project is organized as follows:
 
-```
+```text
 decker/
 ├── main.ts                 # Main application entry point
 ├── deno.json               # Deno configuration and tasks
@@ -142,7 +142,7 @@ decker/
 │   └── version.ts          # Application version information
 └── types/                  # External type declarations
     └── stream-deck.d.ts    # Stream Deck library type definitions
-```
+```text
 
 ## Further Development
 

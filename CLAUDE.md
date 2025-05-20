@@ -49,6 +49,7 @@ connection, and control of Stream Deck hardware.
 - Include proper error handling in all methods that interact with devices
 - Run all pre-commit checks and fix any errors found before attempting to make any commits
 - MAKE SURE all TypeScript type checks, tests, linting, and formatting are passing before committing any code.
+- Use `markdownlint` to ensure linting of all Markdown files.
 - DO NOT include references to Claude co-authoring the commits.
 - DO NOT EVER use `--no-verify` when making commits.
 

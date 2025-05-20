@@ -5,6 +5,7 @@ This document provides a comprehensive guide to the button manipulation API prov
 ## Overview
 
 The Stream Deck button API allows you to:
+
 - Set solid colors on buttons
 - Display images on buttons
 - Clear buttons (individual or all)
@@ -28,12 +29,14 @@ async setButtonColor(
 Sets a solid color on a button using RGB values (0-255).
 
 **Parameters:**
+
 - `buttonIndex`: The button index (0-based)
 - `r`: Red component (0-255)
 - `g`: Green component (0-255)
 - `b`: Blue component (0-255)
 
 **Example:**
+
 ```typescript
 // Set button 0 to red
 await device.setButtonColor(0, 255, 0, 0);
@@ -60,10 +63,12 @@ async setButtonImage(
 Sets an image on a button using a Buffer containing image data.
 
 **Parameters:**
+
 - `buttonIndex`: The button index (0-based)
 - `buffer`: The image buffer (Node.js Buffer)
 
 **Example:**
+
 ```typescript
 // Read an image file
 const imageBuffer = await Deno.readFile('path/to/image.png');
@@ -83,9 +88,11 @@ async clearButton(
 Clears (turns off) a specific button.
 
 **Parameters:**
+
 - `buttonIndex`: The button index (0-based)
 
 **Example:**
+
 ```typescript
 // Clear button 0
 await device.clearButton(0);
@@ -98,6 +105,7 @@ async clearAllButtons(): Promise<void>
 Clears all buttons on the device.
 
 **Example:**
+
 ```typescript
 // Clear all buttons
 await device.clearAllButtons();
@@ -116,6 +124,7 @@ device.on(DeviceEventType.BUTTON_PRESSED, (event: ButtonEvent) => {
 ```
 
 **Event Object:**
+
 ```typescript
 interface ButtonEvent {
   type: DeviceEventType.BUTTON_PRESSED | DeviceEventType.BUTTON_RELEASED;

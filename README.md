@@ -104,7 +104,7 @@ for (const [_, device] of devices) {
     device.clearButton(event.buttonIndex);
   });
 }
-```
+```text
 
 ### Device Identification
 
@@ -112,7 +112,7 @@ Run the identify tool to help identify which Stream Deck is which:
 
 ```bash
 deno task identify
-```
+```text
 
 Use different identification modes with task shortcuts:
 
@@ -128,7 +128,7 @@ deno task identify:sequence
 
 # Fade mode - fades all buttons through colors
 deno task identify:fade
-```
+```text
 
 Or use flags for more control:
 
@@ -138,7 +138,7 @@ deno task identify -- -d ABC123456
 
 # Run 5 cycles with 200ms delay
 deno task identify -- -c 5 -D 200
-```
+```text
 
 ### Configuration Management
 
@@ -156,7 +156,7 @@ deno task config:info
 
 # Generate JSON Schema
 deno task config:schema
-```
+```text
 
 Or use more specific commands:
 
@@ -169,15 +169,15 @@ deno task config -- validate --path devices.ABC123.pages.main
 
 # Save schema to a file
 deno task config -- schema schema.json
-```
+```text
 
 ## Development
 
 This project is built using Deno. To run the development version:
 
-```
+```text
 deno task dev
-```
+```text
 
 ### Git Hooks
 
@@ -185,7 +185,7 @@ The project uses Git hooks to ensure code quality. Install the hooks with:
 
 ```bash
 deno task install-hooks
-```
+```text
 
 These hooks will automatically run before each commit to verify:
 
@@ -208,7 +208,7 @@ For more detailed documentation, see the [Documentation Index](docs/index.md) or
 
 ## Project Structure
 
-```
+```text
 decker/
 ├── main.ts                 # Main application entry point
 ├── deno.json               # Deno configuration and tasks
@@ -228,7 +228,7 @@ decker/
 │   └── version.ts          # Application version information
 └── types/                  # External type declarations
     └── stream-deck.d.ts    # Stream Deck library type definitions
-```
+```text
 
 ## Requirements
 

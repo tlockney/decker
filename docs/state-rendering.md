@@ -93,6 +93,7 @@ The state renderer automatically handles page switching:
 3. Buttons from the previous page are removed from the state manager and no longer rendered
 
 Example:
+
 ```typescript
 // Switch to a different page
 stateManager.setActivePage(deviceSerial, "page2");

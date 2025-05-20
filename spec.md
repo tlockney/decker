@@ -178,7 +178,7 @@ configuration system to control multiple connected Stream Deck devices.
     "log_level": "info"
   }
 }
-```
+```text
 
 ### Action Response Format
 
@@ -193,7 +193,7 @@ Actions can return JSON-formatted responses to provide feedback:
   "transient": true|false,
   "transientDuration": 2000
 }
-```
+```text
 
 ### HTTP/MQTT Integration
 
@@ -206,7 +206,7 @@ The application will support sending/receiving via:
 
 A utility for identifying physical devices:
 
-```
+```text
 > decker list
 Found 2 devices:
 1. Serial: ABC123 (Stream Deck XL)
@@ -214,7 +214,7 @@ Found 2 devices:
 
 > decker identify ABC123
 Flashing buttons on device ABC123 for identification
-```
+```text
 
 ## Development Phases
 

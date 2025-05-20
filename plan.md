@@ -7,7 +7,8 @@ This document outlines a step-by-step implementation plan for the Decker Stream 
 ### Stage 1: Configuration System Foundation
 
 #### Step 1.1: JSON Schema Definition
-```
+
+```text
 Create a TypeScript module for the configuration system. Start by defining the TypeScript interfaces that correspond to the JSON configuration structure as specified in the spec.md document.
 
 Implement a simple type hierarchy that covers:
@@ -18,10 +19,11 @@ Implement a simple type hierarchy that covers:
 - Simple action types (placeholder)
 
 Focus on the core structure only, with placeholder types for actions to be expanded later. Use TypeScript interfaces to ensure type safety and code clarity. The schema should validate basic structural properties but defer complex validation for later steps.
-```
+```text
 
 #### Step 1.2: Configuration File Loading
-```
+
+```text
 Implement functions to load and parse configuration files from the file system. Create a Configuration class that encapsulates this functionality:
 
 1. Add functions to locate and read configuration files from standard locations:
@@ -37,10 +39,11 @@ Implement functions to load and parse configuration files from the file system. 
 3. Create a simple configuration loading function that returns a typed configuration object or appropriate errors.
 
 All functions should be properly typed using the schema defined in step 1.1.
-```
+```text
 
 #### Step 1.3: Configuration Validation
-```
+
+```text
 Enhance the configuration system with robust validation. Use a schema validation library like Zod to create validators for the configuration structure.
 
 Implement validators for:
@@ -58,12 +61,13 @@ Validation should:
 - Include helper methods for checking specific elements
 
 The validation should be invoked during configuration loading but separated into its own module for testability.
-```
+```text
 
 ### Stage 2: Button and State Management
 
 #### Step 2.1: Button State Model
-```
+
+```text
 Create a state management system for button states. Implement:
 
 1. A ButtonState class that represents the current state of a button:
@@ -77,10 +81,11 @@ Create a state management system for button states. Implement:
    - Methods for getting, setting, and observing state changes
 
 The state system should be observable (use an event system) so that UI components can react to state changes. All state classes should be properly typed according to the schema from Stage 1.
-```
+```text
 
 #### Step 2.2: Button Rendering System
-```
+
+```text
 Create a RenderingSystem class that handles the visual representation of buttons on Stream Deck devices. This system should:
 
 1. Translate ButtonState objects into visual representations
@@ -90,10 +95,11 @@ Create a RenderingSystem class that handles the visual representation of buttons
 5. Convert the rendered content into the format expected by the Stream Deck API
 
 Implement image loading, basic text rendering, and color management. The rendering system should be modular and extensible to support more complex visualizations later.
-```
+```text
 
 #### Step 2.3: Connecting Rendering to Device State
-```
+
+```text
 Connect the button rendering system to the device management layer created previously:
 
 1. Create mechanisms to bind ButtonState objects to physical buttons on devices
@@ -102,12 +108,13 @@ Connect the button rendering system to the device management layer created previ
 4. Implement page switching functionality to change visible button sets
 
 The connection should be bidirectional - button presses update state, and state changes update button visuals. Implement proper cleanup for device disconnection and page switching.
-```
+```text
 
 ### Stage 3: Actions Framework
 
 #### Step 3.1: Action System Foundation
-```
+
+```text
 Create the core action system that will execute button functionality:
 
 1. Define an Action interface that all action types will implement
@@ -116,10 +123,11 @@ Create the core action system that will execute button functionality:
 4. Define the standard result format for actions
 
 The system should be extensible to allow new action types to be added easily. Implement proper error handling and result processing for all action executions.
-```
+```text
 
 #### Step 3.2: Basic Action Types
-```
+
+```text
 Implement the first set of action types:
 
 1. LaunchAppAction - Opens an application
@@ -135,10 +143,11 @@ Each action type should:
 - Be registered with the ActionRegistry
 
 Focus on robustness and proper error handling for each action type.
-```
+```text
 
 #### Step 3.3: Action Result Handling
-```
+
+```text
 Enhance the action system with comprehensive result handling:
 
 1. Create a standardized ActionResult interface
@@ -148,12 +157,13 @@ Enhance the action system with comprehensive result handling:
 5. Support transient states for temporary visual feedback
 
 The system should handle success and failure cases appropriately and provide visual feedback to the user through the Stream Deck buttons.
-```
+```text
 
 ### Stage 4: Integration and Orchestration
 
 #### Step 4.1: Application Integration
-```
+
+```text
 Connect all components into a cohesive application:
 
 1. Create a main application class that initializes and manages all subsystems
@@ -163,10 +173,11 @@ Connect all components into a cohesive application:
 5. Connect the configuration system, device manager, and action system
 
 The integration should follow clean architecture principles with clear separation of concerns and well-defined interfaces between components.
-```
+```text
 
 #### Step 4.2: State Persistence
-```
+
+```text
 Implement persistence for application state:
 
 1. Create mechanisms to save and restore:
@@ -179,10 +190,11 @@ Implement persistence for application state:
 4. Ensure clean state reset when configurations change
 
 The persistence should be unobtrusive and maintain the user experience across application restarts.
-```
+```text
 
 #### Step 4.3: Error Handling and Logging
-```
+
+```text
 Enhance the application with robust error handling and logging:
 
 1. Implement a centralized logging system with configurable levels
@@ -192,12 +204,13 @@ Enhance the application with robust error handling and logging:
 5. Implement recovery strategies for common error scenarios
 
 The error handling should be helpful to users while providing sufficient detail for developers to diagnose issues.
-```
+```text
 
 ### Stage 5: Advanced Features
 
 #### Step 5.1: HTTP Integration
-```
+
+```text
 Add HTTP integration for actions:
 
 1. Implement HttpRequestAction for making API calls
@@ -205,10 +218,11 @@ Add HTTP integration for actions:
 3. Create handling for different response types
 4. Implement retry and timeout strategies
 5. Add appropriate error handling for network issues
-```
+```text
 
 #### Step 5.2: Inline Code Execution
-```
+
+```text
 Implement the inline code execution feature:
 
 1. Create a secure sandboxed environment for running user code
@@ -216,10 +230,11 @@ Implement the inline code execution feature:
 3. Create a context with access to relevant state
 4. Add proper error handling for user code
 5. Implement timeouts and resource limitations
-```
+```text
 
 #### Step 5.3: Dynamic Button Appearance
-```
+
+```text
 Enhance the button rendering system with dynamic appearance:
 
 1. Add support for state-based images and colors
@@ -227,7 +242,7 @@ Enhance the button rendering system with dynamic appearance:
 3. Create animation capabilities for button visuals
 4. Add support for more complex layouts and visual effects
 5. Implement caching for better performance
-```
+```text
 
 ## Task Breakdown for Implementation
 
@@ -300,6 +315,7 @@ Enhance the button rendering system with dynamic appearance:
 ## Implementation Strategy
 
 Each task should:
+
 1. Begin with writing tests
 2. Implement minimal functionality first
 3. Add error handling and edge cases
@@ -307,6 +323,7 @@ Each task should:
 5. Document the implementation
 
 The implementation should follow these principles:
+
 - Prioritize robustness over features
 - Maintain clean interfaces between components
 - Ensure comprehensive test coverage

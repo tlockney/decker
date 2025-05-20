@@ -5,6 +5,7 @@ This document explains the configuration system used by Decker to manage Stream 
 ## Overview
 
 Decker uses a JSON-based configuration system that allows you to:
+
 - Configure multiple Stream Deck devices
 - Create multiple pages of buttons per device
 - Define different actions for buttons
@@ -101,6 +102,7 @@ Buttons are configured with:
 ```
 
 Common properties:
+
 - `type`: The action type for this button (required)
 - `image`: Path to the button image (optional)
 - `text`: Text to display on the button (optional)
