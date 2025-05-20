@@ -34,6 +34,7 @@
     "@std/log": "jsr:@std/log@0.220.1",
     "@std/fs": "jsr:@std/fs@0.220.1",
     "@std/path": "jsr:@std/path@0.220.1",
+    "@std/testing": "jsr:@std/testing@0.220.1",
     "decker/": "./src/"
   },
   "compilerOptions": {

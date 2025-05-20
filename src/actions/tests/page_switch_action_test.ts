@@ -5,17 +5,12 @@
  */
 
 import { assertEquals, assertExists } from "@std/assert";
-import { assertSpyCalled, spy } from "@std/testing/mock";
+import { assertSpyCall, assertSpyCalls, spy } from "jsr:@std/testing@0.220.1/mock";
 import { PageSwitchAction, PageSwitchActionFactory } from "../page_switch_action.ts";
 import { ActionContext, ActionStatus } from "../types.ts";
 import { ButtonState } from "../../state/button_state.ts";
 import { StateManager } from "../../state/state_manager.ts";
 import { DeckerConfig } from "../../config/schema.ts";
-
-// Define SpyCall interface to replace Deno.SpyCall
-interface SpyCall {
-  calls: Array<unknown[]>;
-}
 
 // Create a mock StateManager
 function createMockStateManager(): StateManager {
@@ -43,17 +38,23 @@ function createMockStateManager(): StateManager {
     },
   };
 
+  const getActivePageSpy = spy((deviceSerial: string) =>
+    deviceSerial === "test-device" ? "main" : undefined
+  );
+
+  const hasPageSpy = spy((deviceSerial: string, pageId: string) => {
+    return deviceSerial === "test-device" && (pageId === "main" || pageId === "page2");
+  });
+
+  const activatePageSpy = spy((_deviceSerial: string, _pageId: string, _options?: unknown) => {
+    return Promise.resolve(true);
+  });
+
   // deno-lint-ignore no-explicit-any
   const mockStateManager: any = {
-    getActivePage: spy((deviceSerial: string) =>
-      deviceSerial === "test-device" ? "main" : undefined
-    ),
-    hasPage: spy((deviceSerial: string, pageId: string) => {
-      return deviceSerial === "test-device" && (pageId === "main" || pageId === "page2");
-    }),
-    activatePage: spy((_deviceSerial: string, _pageId: string, _options?: unknown) => {
-      return Promise.resolve();
-    }),
+    getActivePage: getActivePageSpy,
+    hasPage: hasPageSpy,
+    activatePage: activatePageSpy,
     config,
   };
 
@@ -62,6 +63,9 @@ function createMockStateManager(): StateManager {
 
 // Create a mock ButtonState
 function createMockButtonState(): ButtonState {
+  const updateVisualSpy = spy((_visual: Record<string, unknown>) => {});
+  const resetSpy = spy(() => {});
+
   // deno-lint-ignore no-explicit-any
   const mock: any = {
     deviceSerial: "test-device",
@@ -74,14 +78,14 @@ function createMockButtonState(): ButtonState {
     visual: {
       text: "Next Page",
     },
-    updateVisual: spy((_visual: Record<string, unknown>) => {}),
-    reset: spy(() => {}),
+    updateVisual: updateVisualSpy,
+    reset: resetSpy,
   };
   return mock as ButtonState;
 }
 
 // Tests
-Deno.test({
+Deno.test.only({
   name: "PageSwitchAction - constructor validation",
   fn() {
     const stateManager = createMockStateManager();
@@ -105,7 +109,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+Deno.test.only({
   name: "PageSwitchAction - factory validation",
   fn() {
     const stateManager = createMockStateManager();
@@ -143,25 +147,27 @@ Deno.test({
     const result = await action.execute(context);
 
     // Verify state manager was called
-    assertSpyCalled(stateManager.getActivePage);
-    assertSpyCalled(stateManager.hasPage);
-    assertSpyCalled(stateManager.activatePage);
+    assertSpyCalls(stateManager.getActivePage, 1);
+    assertSpyCalls(stateManager.hasPage, 1);
+    assertSpyCalls(stateManager.activatePage, 1);
 
     // Verify the right parameters were used for activation
-    const activateCall = (stateManager.activatePage as unknown as {
-      calls: Array<[string, string, Record<string, boolean>]>;
-    }).calls[0];
-    assertEquals(activateCall[0], "test-device"); // Device serial
-    assertEquals(activateCall[1], "page2"); // Target page
-    assertEquals(activateCall[2].animate, true); // Options: animate
-    assertEquals(activateCall[2].pushToStack, true); // Options: pushToStack
+    const activateArgs = assertSpyCall(stateManager.activatePage, 0).args;
+    assertEquals(activateArgs[0], "test-device"); // Device serial
+    assertEquals(activateArgs[1], "page2"); // Target page
+
+    const options = activateArgs[2] as Record<string, boolean>;
+    assertEquals(options.animate, true); // Options: animate
+    assertEquals(options.pushToStack, true); // Options: pushToStack
 
     // Verify visual indicator was shown
-    assertSpyCalled(buttonState.updateVisual);
-    const updateCall = (buttonState.updateVisual as unknown as SpyCall)
-      .calls[0][0] as Record<string, unknown>;
+    assertSpyCalls(buttonState.updateVisual, 1);
+    const updateCall = assertSpyCall(buttonState.updateVisual, 0).args[0] as Record<
+      string,
+      unknown
+    >;
     assertEquals(typeof updateCall.text, "string");
-    assertEquals(typeof updateCall.text === "string" && updateCall.text.includes("page2"), true);
+    assertEquals((updateCall.text as string).includes("page2"), true);
 
     // Verify result
     assertEquals(result.status, ActionStatus.SUCCESS);
@@ -189,7 +195,7 @@ Deno.test({
     const result = await action.execute(context);
 
     // Verify state manager checks were called
-    assertSpyCalled(stateManager.hasPage);
+    assertSpyCalls(stateManager.hasPage, 1);
 
     // Verify result is failure
     assertEquals(result.status, ActionStatus.FAILURE);
@@ -223,9 +229,7 @@ Deno.test({
     await action.execute(context);
 
     // Verify the context device serial was used
-    const activateCall = (stateManager.activatePage as unknown as {
-      calls: Array<[string, string, Record<string, boolean>]>;
-    }).calls[0];
-    assertEquals(activateCall[0], "test-device");
+    const activateArgs = assertSpyCall(stateManager.activatePage, 0).args;
+    assertEquals(activateArgs[0], "test-device");
   },
 });

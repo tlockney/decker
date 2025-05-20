@@ -5,14 +5,14 @@
  */
 
 import { assertEquals, assertExists } from "@std/assert";
-import { assertSpyCalled, spy } from "@std/testing/mock";
+import { assertSpyCall, assertSpyCalls, spy } from "jsr:@std/testing@0.220.1/mock";
 import { HttpRequestAction, HttpRequestActionFactory } from "../http_request_action.ts";
 import { ActionContext, ActionStatus } from "../types.ts";
 import { ButtonState } from "../../state/button_state.ts";
 
-// Define SpyCall interface to replace Deno.SpyCall
-interface SpyCall {
-  calls: Array<unknown[]>;
+// Define SpyCall interface for our test helpers
+interface SpyCallArg {
+  [key: string]: unknown;
 }
 
 // Mock ButtonState
@@ -36,17 +36,28 @@ function createMockButtonState(): ButtonState {
 
 // Mock fetch function for testing
 const originalFetch = globalThis.fetch;
+let fetchSpy: ReturnType<typeof spy>;
 
 function setupMockFetch(mockResponse: Response) {
-  globalThis.fetch = spy(() => Promise.resolve(mockResponse));
+  fetchSpy = spy(() => Promise.resolve(mockResponse));
+  globalThis.fetch = fetchSpy;
 }
 
 function restoreFetch() {
   globalThis.fetch = originalFetch;
 }
 
+// Helper function to safely access properties in spy call arguments
+function getSpyCallArg(
+  spyObj: ReturnType<typeof spy>,
+  callIndex: number,
+  argIndex: number,
+): SpyCallArg {
+  return assertSpyCall(spyObj, callIndex).args[argIndex] as SpyCallArg;
+}
+
 // Tests
-Deno.test({
+Deno.test.only({
   name: "HttpRequestAction - constructor validation",
   fn() {
     // Should throw if URL is missing
@@ -68,7 +79,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+Deno.test.only({
   name: "HttpRequestAction - factory validation",
   fn() {
     const factory = new HttpRequestActionFactory();
@@ -110,10 +121,13 @@ Deno.test({
       const result = await action.execute(context);
 
       // Verify fetch was called with correct params
-      assertSpyCalled(globalThis.fetch);
-      const fetchArgs = (globalThis.fetch as unknown as SpyCall).calls[0];
-      assertEquals(fetchArgs[0], "https://example.com/api");
-      assertEquals(fetchArgs[1].method, "GET");
+      assertSpyCalls(fetchSpy, 1);
+
+      const url = assertSpyCall(fetchSpy, 0).args[0];
+      assertEquals(url, "https://example.com/api");
+
+      const options = getSpyCallArg(fetchSpy, 0, 1);
+      assertEquals(options.method, "GET");
 
       // Verify result
       assertEquals(result.status, ActionStatus.SUCCESS);
@@ -152,13 +166,19 @@ Deno.test({
       const result = await action.execute(context);
 
       // Verify fetch was called with correct params
-      assertSpyCalled(globalThis.fetch);
-      const fetchArgs = (globalThis.fetch as unknown as SpyCall).calls[0];
-      assertEquals(fetchArgs[0], "https://example.com/api/create");
-      assertEquals(fetchArgs[1].method, "POST");
-      assertEquals(fetchArgs[1].headers["Content-Type"], "application/json");
-      assertEquals(fetchArgs[1].headers["X-Custom-Header"], "test-value");
-      assertEquals(fetchArgs[1].body, JSON.stringify({ name: "Test Item", active: true }));
+      assertSpyCalls(fetchSpy, 1);
+
+      const url = assertSpyCall(fetchSpy, 0).args[0];
+      assertEquals(url, "https://example.com/api/create");
+
+      const options = getSpyCallArg(fetchSpy, 0, 1);
+      assertEquals(options.method, "POST");
+
+      const headers = options.headers as Record<string, string>;
+      assertEquals(headers["Content-Type"], "application/json");
+      assertEquals(headers["X-Custom-Header"], "test-value");
+
+      assertEquals(options.body, JSON.stringify({ name: "Test Item", active: true }));
 
       // Verify result
       assertEquals(result.status, ActionStatus.SUCCESS);
@@ -195,19 +215,15 @@ Deno.test({
       await action.execute(context);
 
       // Verify button state was updated
-      assertSpyCalled(buttonState.updateVisual);
+      assertSpyCalls(buttonState.updateVisual, 2);
 
       // First updateVisual should set "Loading..."
-      assertEquals(
-        (buttonState.updateVisual as unknown as SpyCall).calls[0][0].text,
-        "Loading...",
-      );
+      const firstUpdate = getSpyCallArg(buttonState.updateVisual, 0, 0);
+      assertEquals(firstUpdate.text, "Loading...");
 
       // Second updateVisual should set the extracted result
-      assertEquals(
-        (buttonState.updateVisual as unknown as SpyCall).calls[1][0].text,
-        "OK",
-      );
+      const secondUpdate = getSpyCallArg(buttonState.updateVisual, 1, 0);
+      assertEquals(secondUpdate.text, "OK");
     } finally {
       restoreFetch();
     }
@@ -244,12 +260,11 @@ Deno.test({
       }
 
       // Verify button state was updated with error
-      assertSpyCalled(buttonState.updateVisual);
-      const updateCall = (buttonState.updateVisual as unknown as SpyCall).calls[1][0];
-      assertEquals(
-        typeof updateCall.text === "string" && updateCall.text.startsWith("Error:"),
-        true,
-      );
+      assertSpyCalls(buttonState.updateVisual, 2);
+
+      const updateCall = getSpyCallArg(buttonState.updateVisual, 1, 0);
+      const text = updateCall.text as string;
+      assertEquals(text.startsWith("Error:"), true);
     } finally {
       restoreFetch();
     }

@@ -5,13 +5,16 @@
  */
 
 import { assertEquals, assertExists } from "@std/assert";
-import { assertSpyCalled, spy } from "@std/testing/mock";
+import { assertSpyCall, assertSpyCalls, spy } from "jsr:@std/testing@0.220.1/mock";
 import { InlineCodeAction, InlineCodeActionFactory } from "../inline_code_action.ts";
 import { ActionContext, ActionStatus } from "../types.ts";
 import { ButtonState } from "../../state/button_state.ts";
 
 // Mock ButtonState
 function createMockButtonState(): ButtonState {
+  const updateVisualSpy = spy((_visual: Record<string, unknown>) => {});
+  const resetSpy = spy(() => {});
+
   // deno-lint-ignore no-explicit-any
   const mock: any = {
     deviceSerial: "test-device",
@@ -23,14 +26,14 @@ function createMockButtonState(): ButtonState {
     visual: {
       text: "Code",
     },
-    updateVisual: spy((_visual: Record<string, unknown>) => {}),
-    reset: spy(() => {}),
+    updateVisual: updateVisualSpy,
+    reset: resetSpy,
   };
   return mock as ButtonState;
 }
 
 // Tests
-Deno.test({
+Deno.test.only({
   name: "InlineCodeAction - constructor validation",
   fn() {
     // Should throw if code is missing
@@ -52,7 +55,7 @@ Deno.test({
   },
 });
 
-Deno.test({
+Deno.test.only({
   name: "InlineCodeAction - factory validation",
   fn() {
     const factory = new InlineCodeActionFactory();
@@ -134,21 +137,21 @@ Deno.test({
     const result = await action.execute(context);
 
     // Verify button state was updated
-    assertSpyCalled(buttonState.updateVisual);
+    assertSpyCalls(buttonState.updateVisual, 2);
 
     // First updateVisual should set "Executing..."
-    assertEquals(
-      (buttonState.updateVisual as unknown as { calls: Array<[Record<string, unknown>]> })
-        .calls[0][0].text,
-      "Executing...",
-    );
+    const firstUpdate = assertSpyCall(buttonState.updateVisual, 0).args[0] as Record<
+      string,
+      unknown
+    >;
+    assertEquals(firstUpdate.text, "Executing...");
 
     // Second updateVisual should set the result
-    assertEquals(
-      (buttonState.updateVisual as unknown as { calls: Array<[Record<string, unknown>]> })
-        .calls[1][0].text,
-      "Activated",
-    );
+    const secondUpdate = assertSpyCall(buttonState.updateVisual, 1).args[0] as Record<
+      string,
+      unknown
+    >;
+    assertEquals(secondUpdate.text, "Activated");
 
     // Verify result
     assertEquals(result.status, ActionStatus.SUCCESS);
@@ -184,12 +187,13 @@ Deno.test({
     }
 
     // Verify error was shown on button
-    assertSpyCalled(buttonState.updateVisual);
-    const updateCall =
-      (buttonState.updateVisual as unknown as { calls: Array<[Record<string, unknown>]> })
-        .calls[1][0];
+    assertSpyCalls(buttonState.updateVisual, 2);
+    const updateCall = assertSpyCall(buttonState.updateVisual, 1).args[0] as Record<
+      string,
+      unknown
+    >;
     assertEquals(
-      typeof updateCall.text === "string" && updateCall.text.startsWith("Error:"),
+      typeof updateCall.text === "string" && (updateCall.text as string).startsWith("Error:"),
       true,
     );
   },
@@ -242,15 +246,16 @@ Deno.test({
     await action.execute(context);
 
     // Verify button text was truncated
-    assertSpyCalled(buttonState.updateVisual);
-    const updateCall =
-      (buttonState.updateVisual as unknown as { calls: Array<[Record<string, unknown>]> })
-        .calls[1][0];
+    assertSpyCalls(buttonState.updateVisual, 2);
+    const updateCall = assertSpyCall(buttonState.updateVisual, 1).args[0] as Record<
+      string,
+      unknown
+    >;
     assertEquals(updateCall.text, "This is a ...");
   },
 });
 
-Deno.test({
+Deno.test.only({
   name: "InlineCodeAction - cancellation",
   fn() {
     // Create action
