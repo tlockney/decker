@@ -27,6 +27,7 @@ import { ConfigLoader } from "./config/loader.ts";
 import { ConfigValidator } from "./config/validator.ts";
 import { ActionRegistry } from "./actions/registry.ts";
 import { ActionFactory } from "./actions/types.ts";
+import { EventHandler } from "./state/events.ts";
 import {
   ActionExecutionEventData,
   ActionExecutor,
@@ -614,20 +615,29 @@ export class DeckerApp {
   ): () => void {
     // Handle enhanced state manager events
     if (Object.values(EnhancedStateManagerEvent).includes(event as EnhancedStateManagerEvent)) {
-      const unsubscribe = this.stateManager.onEnhanced(event, callback);
+      const unsubscribe = this.stateManager.onEnhanced(
+        event,
+        callback as unknown as EventHandler<unknown>,
+      );
       this.cleanupFunctions.push(unsubscribe);
       return unsubscribe;
     }
 
     // Handle regular state manager events
     if (Object.values(StateManagerEvent).includes(event as StateManagerEvent)) {
-      const unsubscribe = this.stateManager.on(event as StateManagerEvent, callback);
+      const unsubscribe = this.stateManager.on(
+        event as StateManagerEvent,
+        callback as EventHandler<unknown>,
+      );
       this.cleanupFunctions.push(unsubscribe);
       return unsubscribe;
     }
 
     // Fallback for any other event types
-    const unsubscribe = this.stateManager.on(event as StateManagerEvent, callback);
+    const unsubscribe = this.stateManager.on(
+      event as StateManagerEvent,
+      callback as EventHandler<unknown>,
+    );
     this.cleanupFunctions.push(unsubscribe);
     return unsubscribe;
   }

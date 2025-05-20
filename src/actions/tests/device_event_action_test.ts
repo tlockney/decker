@@ -59,6 +59,8 @@ Deno.test("DeviceEventAction - Successful event handling", async () => {
     deviceSerial: "test-device",
     buttonIndex: 1,
     pageId: "test-page",
+    config: { type: "none" },
+    visual: {},
   });
 
   // Execute action (which starts listening for events)
@@ -97,6 +99,8 @@ Deno.test("DeviceEventAction - Ignores non-matching events", async () => {
     deviceSerial: "test-device",
     buttonIndex: 1,
     pageId: "test-page",
+    config: { type: "none" },
+    visual: {},
   });
 
   // Execute action (which starts listening for events)
@@ -160,6 +164,8 @@ Deno.test("DeviceEventAction - Times out when no matching event", async () => {
     deviceSerial: "test-device",
     buttonIndex: 1,
     pageId: "test-page",
+    config: { type: "none" },
+    visual: {},
   });
 
   // Execute action (which starts listening for events)
@@ -187,6 +193,8 @@ Deno.test("DeviceEventAction - Can be cancelled", async () => {
     deviceSerial: "test-device",
     buttonIndex: 1,
     pageId: "test-page",
+    config: { type: "none" },
+    visual: {},
   });
 
   // Execute action (which starts listening for events)

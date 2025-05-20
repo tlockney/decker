@@ -21,12 +21,8 @@ export { StreamDeckDevice } from "./src/devices/stream_deck_device.ts";
 export * from "./src/cli/mod.ts";
 
 // Re-export configuration system
-export {
-  ConfigLoader,
-  ConfigLoadResult,
-  ConfigurationError,
-  DEFAULT_CONFIG_FILENAME,
-} from "./src/config/loader.ts";
+export { ConfigLoader, ConfigurationError, DEFAULT_CONFIG_FILENAME } from "./src/config/loader.ts";
+export type { ConfigLoadResult } from "./src/config/loader.ts";
 export {
   configSchema,
   ConfigValidator,
@@ -39,24 +35,23 @@ export {
   ValidationError,
 } from "./src/config/validator.ts";
 export * from "./src/config/schema.ts";
+export type { ButtonVisual } from "./src/config/schema.ts";
 
 // Re-export action framework core
-export {
+export { ActionEvent, ActionStatus } from "./src/actions/types.ts";
+export type {
   Action,
   ActionContext,
-  ActionEvent,
   ActionEventData,
   ActionFactory,
   ActionOptions,
   ActionResult,
-  ActionStatus,
 } from "./src/actions/types.ts";
 export { ActionRegistry } from "./src/actions/registry.ts";
-export {
+export { ActionExecutor, ExecutorEvent } from "./src/actions/executor.ts";
+export type {
   ActionExecutionEventData,
-  ActionExecutor,
   ActionResultEventData,
-  ExecutorEvent,
   ExecutorEventData,
 } from "./src/actions/executor.ts";
 export { BaseAction } from "./src/actions/base_action.ts";
@@ -73,25 +68,22 @@ export { PageSwitchAction, PageSwitchActionFactory } from "./src/actions/page_sw
 export { InlineCodeAction, InlineCodeActionFactory } from "./src/actions/inline_code_action.ts";
 
 // Re-export state management
-export {
-  ButtonState,
-  ButtonStateEvent,
-  ButtonStateOptions,
-  ButtonVisual,
-} from "./src/state/button_state.ts";
+export { ButtonState, ButtonStateEvent } from "./src/state/button_state.ts";
+export type { ButtonStateData } from "./src/state/button_state.ts";
 export { StateManager, StateManagerEvent } from "./src/state/state_manager.ts";
 export {
   EnhancedStateManager,
   EnhancedStateManagerEvent,
 } from "./src/state/state_manager_enhanced.ts";
 export { type PersistenceOptions, StatePersistence } from "./src/state/persistence.ts";
-export { EventBus, EventEmitter } from "./src/state/events.ts";
+export { EventBus } from "./src/state/events.ts";
+export type { EventEmitter } from "./src/state/events.ts";
 
 // Re-export rendering system
 export { RenderingManager } from "./src/rendering/rendering_manager.ts";
-export { Renderer } from "./src/rendering/renderer.ts";
-export { BasicRenderer } from "./src/rendering/basic_renderer.ts";
-export { ImageRenderer } from "./src/rendering/image_renderer.ts";
+export type { ButtonRenderer, ButtonVisualProps, RGB } from "./src/rendering/renderer.ts";
+export { BasicButtonRenderer, BasicRendererFactory } from "./src/rendering/basic_renderer.ts";
+export { ImageButtonRenderer, ImageRendererFactory } from "./src/rendering/image_renderer.ts";
 export { StateRenderer } from "./src/rendering/state_renderer.ts";
 
 // Re-export utility functions
