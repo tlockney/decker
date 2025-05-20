@@ -10,10 +10,10 @@
 ### Configuration System
 - [x] Define configuration schema
 - [x] Implement configuration loading and parsing
-- [ ] Add configuration validation
+- [x] Add configuration validation
 
 ### Button and State Management
-- [ ] Implement button state model
+- [x] Implement button state model
 - [ ] Create button rendering system
 - [ ] Connect button rendering to device state
 
