@@ -70,6 +70,11 @@ export interface ButtonRenderer {
    * Clears any cached renders for efficiency
    */
   clearCache(): void;
+
+  /**
+   * Properly dispose of any resources used by the renderer
+   */
+  dispose(): void;
 }
 
 /**

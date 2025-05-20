@@ -7,7 +7,7 @@
 import { Buffer } from "node:buffer";
 import { BaseButtonRenderer } from "./base_renderer.ts";
 import { ButtonVisualProps, RenderOptions } from "./renderer.ts";
-import { decode as decodeJpeg, encode as encodeJpeg } from "@julusian/jpeg-turbo";
+import { decode as decodeJpeg, encode as encodeJpeg } from "./jpeg_mock.ts";
 import { BasicButtonRenderer } from "./basic_renderer.ts";
 
 /**
@@ -17,7 +17,7 @@ export class ImageButtonRenderer extends BaseButtonRenderer {
   /** Basic renderer for fallback */
   private basicRenderer = new BasicButtonRenderer();
   /** Cache of loaded images */
-  private imageCache: Map<string, { buffer: Buffer; timestamp: number }> = new Map();
+  private imageCache: Map<string, { buffer: Uint8Array; timestamp: number }> = new Map();
   /** Maximum age of cached images (10 minutes) */
   private imageCacheMaxAge = 10 * 60 * 1000;
 
@@ -70,7 +70,7 @@ export class ImageButtonRenderer extends BaseButtonRenderer {
     // Check cache first
     const cached = this.imageCache.get(imagePath);
     if (cached && (Date.now() - cached.timestamp) < this.imageCacheMaxAge) {
-      return cached.buffer;
+      return Promise.resolve(Buffer.from(cached.buffer));
     }
 
     // Load the image file
@@ -83,7 +83,7 @@ export class ImageButtonRenderer extends BaseButtonRenderer {
         timestamp: Date.now(),
       });
 
-      return imageData;
+      return Buffer.from(imageData);
     } catch (error) {
       console.error(`Error loading image from ${imagePath}:`, error);
       throw error;
@@ -113,12 +113,13 @@ export class ImageButtonRenderer extends BaseButtonRenderer {
       // If image is already the right size, just use it
       if (decoded.width === options.width && decoded.height === options.height) {
         // Encode as JPEG for Stream Deck
-        return encodeJpeg(decoded.data, {
+        const result = encodeJpeg(decoded.data, {
           width: decoded.width,
           height: decoded.height,
           quality: 90,
           subsampling: 1,
         });
+        return Promise.resolve(result);
       }
 
       // Simple resize logic (center crop to maintain aspect ratio)
@@ -173,12 +174,13 @@ export class ImageButtonRenderer extends BaseButtonRenderer {
       // For now, we'll skip text overlay in this implementation
 
       // Encode as JPEG for Stream Deck
-      return encodeJpeg(resized, {
+      const result = encodeJpeg(resized, {
         width: options.width,
         height: options.height,
         quality: 90,
         subsampling: 1,
       });
+      return Promise.resolve(result);
     } catch (error) {
       console.error("Error processing image:", error);
 
@@ -190,7 +192,7 @@ export class ImageButtonRenderer extends BaseButtonRenderer {
   /**
    * Clears the renderer caches
    */
-  clearCache(): void {
+  override clearCache(): void {
     super.clearCache();
     this.imageCache.clear();
     this.basicRenderer.clearCache();

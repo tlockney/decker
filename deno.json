@@ -20,7 +20,9 @@
     "config:info": "deno run --allow-all src/cli/config.ts info",
     "config:schema": "deno run --allow-all src/cli/config.ts schema",
     
-    "examples:rendering": "deno run --allow-all examples/rendering_examples.ts"
+    "examples:rendering": "deno run --allow-all examples/rendering_examples.ts",
+    "examples:state": "deno run --allow-all examples/state_rendering_example.ts",
+    "examples:actions": "deno run --allow-all examples/action_framework_example.ts"
   },
   "nodeModulesDir": "auto",
   "imports": {

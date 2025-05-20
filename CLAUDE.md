@@ -47,28 +47,34 @@ connection, and control of Stream Deck hardware.
 - Maintain type safety throughout the codebase
 - Use async/await for asynchronous operations
 - Include proper error handling in all methods that interact with devices
+- Run all pre-commit checks and fix any errors found before attempting to make any commits
+- MAKE SURE all TypeScript type checks, tests, linting, and formatting are passing before committing any code.
 - DO NOT include references to Claude co-authoring the commits.
 - DO NOT EVER use `--no-verify` when making commits.
 
 ## Key APIs
 
 ### Button Control
+
 - `device.setButtonColor(buttonIndex, r, g, b)` - Sets solid color
 - `device.setButtonImage(buttonIndex, buffer)` - Sets image
 - `device.clearButton(buttonIndex)` - Clears a button
 - `device.clearAllButtons()` - Clears all buttons
 
 ### Rendering System
+
 - `renderingManager.setButtonColor(device, buttonIndex, color)` - Sets button color
 - `renderingManager.setButtonText(device, buttonIndex, text, bgColor, textColor)` - Sets text on button
 - `renderingManager.updateButton(device, buttonIndex, visualProps)` - Updates with full visual properties
 
 ### Event Handling
+
 - Button events: `BUTTON_PRESSED`, `BUTTON_RELEASED`
 - Dial events: `DIAL_PRESSED`, `DIAL_RELEASED`, `DIAL_ROTATED`
 - Device events: `DEVICE_CONNECTED`, `DEVICE_DISCONNECTED`
 
 ### Configuration
+
 - JSON-based configuration with schema validation
 - Supports multiple devices, pages, and action types
 - Validation and management through config CLI tool
@@ -76,6 +82,7 @@ connection, and control of Stream Deck hardware.
 ## Documentation
 
 The project includes comprehensive documentation in the `/docs` directory:
+
 - **button-api.md**: Detailed guide to button manipulation
 - **configuration.md**: Guide to the JSON configuration system
 - **events.md**: Documentation on the event handling system

@@ -7,7 +7,7 @@
 import { Buffer } from "node:buffer";
 import { BaseButtonRenderer } from "./base_renderer.ts";
 import { ButtonVisualProps, RenderOptions, RGB } from "./renderer.ts";
-import { encode as encodeJpeg } from "@julusian/jpeg-turbo";
+import { encode as encodeJpeg } from "./jpeg_mock.ts";
 
 /**
  * Utility class for creating in-memory canvas for rendering
@@ -147,9 +147,9 @@ class BitmapCanvas {
   /**
    * Converts the canvas to a JPEG buffer
    * @param quality JPEG quality (1-100)
-   * @returns Buffer containing JPEG data
+   * @returns Promise containing JPEG data Buffer
    */
-  toJpegBuffer(quality: number = 90): Buffer {
+  toJpegBuffer(quality: number = 90): Promise<Buffer> {
     // Convert RGBA to RGB for JPEG encoding
     const rgbData = new Uint8Array(this.width * this.height * 3);
 
@@ -160,12 +160,15 @@ class BitmapCanvas {
     }
 
     // Encode as JPEG using @julusian/jpeg-turbo
-    return encodeJpeg(rgbData, {
+    const result = encodeJpeg(rgbData, {
       width: this.width,
       height: this.height,
       quality: quality,
       subsampling: 1, // 4:4:4 for better quality
     });
+
+    // Return as a Promise
+    return Promise.resolve(result);
   }
 }
 

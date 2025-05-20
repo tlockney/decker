@@ -5,7 +5,7 @@
  */
 
 // Export interfaces
-export {
+export type {
   ButtonRenderer,
   ButtonVisualProps,
   RendererFactory,
@@ -20,3 +20,7 @@ export { ImageButtonRenderer, ImageRendererFactory } from "./image_renderer.ts";
 
 // Export the rendering manager
 export { RenderingManager } from "./rendering_manager.ts";
+
+// Export the state renderer
+export { StateRenderer } from "./state_renderer.ts";
+export type { StateRendererOptions } from "./state_renderer.ts";

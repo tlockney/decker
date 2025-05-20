@@ -8,6 +8,7 @@ This directory contains comprehensive documentation for the Decker application, 
 - [Configuration System](configuration.md) - Guide to the JSON configuration system
 - [Event System](events.md) - Documentation on the event handling system
 - [Rendering System](rendering-system.md) - Documentation on button rendering capabilities
+- [State Rendering](state-rendering.md) - Documentation on state and rendering integration
 
 ## Additional Resources
 

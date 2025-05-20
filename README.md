@@ -188,6 +188,7 @@ deno task install-hooks
 ```
 
 These hooks will automatically run before each commit to verify:
+
 - Code formatting (`deno fmt --check`)
 - Linting (`deno lint`)
 - Type checking (`deno check`)

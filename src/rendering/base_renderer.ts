@@ -36,12 +36,26 @@ export abstract class BaseButtonRenderer implements ButtonRenderer {
   /** Default background color */
   protected defaultBackgroundColor: RGB = { r: 0, g: 0, b: 0 };
 
+  /** Interval ID for cache cleanup */
+  private cleanupIntervalId?: number;
+
   /**
    * Creates a new BaseButtonRenderer
    */
   constructor() {
     // Schedule periodic cache cleanup
-    setInterval(() => this.cleanupCache(), this.cacheExpirationMs);
+    this.cleanupIntervalId = setInterval(() => this.cleanupCache(), this.cacheExpirationMs);
+  }
+
+  /**
+   * Dispose of resources used by the renderer
+   */
+  dispose(): void {
+    // Clear the cleanup interval
+    if (this.cleanupIntervalId !== undefined) {
+      clearInterval(this.cleanupIntervalId);
+      this.cleanupIntervalId = undefined;
+    }
   }
 
   /**
