@@ -8,7 +8,19 @@
     "check": "deno check --no-lock main.ts mod.ts src/**/*.ts examples/**/*.ts",
     "identify": "deno run --allow-all src/cli/identify.ts",
     "config": "deno run --allow-all src/cli/config.ts",
-    "install-hooks": "./scripts/install-hooks.sh"
+    "install-hooks": "./scripts/install-hooks.sh",
+    
+    "identify:list": "deno run --allow-all src/cli/identify.ts --list",
+    "identify:test": "deno run --allow-all src/cli/identify.ts --test",
+    "identify:sequence": "deno run --allow-all src/cli/identify.ts --mode sequence",
+    "identify:fade": "deno run --allow-all src/cli/identify.ts --mode fade",
+    
+    "config:init": "deno run --allow-all src/cli/config.ts init",
+    "config:validate": "deno run --allow-all src/cli/config.ts validate",
+    "config:info": "deno run --allow-all src/cli/config.ts info",
+    "config:schema": "deno run --allow-all src/cli/config.ts schema",
+    
+    "examples:rendering": "deno run --allow-all examples/rendering_examples.ts"
   },
   "nodeModulesDir": "auto",
   "imports": {
