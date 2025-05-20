@@ -7,34 +7,32 @@
 import { Buffer } from "node:buffer";
 import { BaseButtonRenderer } from "./base_renderer.ts";
 import { ButtonVisualProps, RenderOptions, RGB } from "./renderer.ts";
-import { encode as encodeJpeg } from "./jpeg_mock.ts";
+import { CanvasContext, createCanvas, SimpleCanvas } from "./canvas_renderer.ts";
 
 /**
- * Utility class for creating in-memory canvas for rendering
- *
- * This is a simplified alternative to using Canvas APIs which may
- * require native dependencies. It directly manipulates pixel data.
+ * Canvas wrapper with methods for common rendering operations
+ * using our custom SimpleCanvas implementation
  */
-class BitmapCanvas {
-  /** Width of the canvas in pixels */
+class CanvasWrapper {
+  /** Canvas instance */
+  private canvas: SimpleCanvas;
+  /** Canvas rendering context */
+  private ctx: CanvasContext;
+  /** Canvas width */
   private width: number;
-  /** Height of the canvas in pixels */
+  /** Canvas height */
   private height: number;
-  /** Raw pixel data (RGBA format, 8 bits per channel) */
-  private data: Uint8Array;
 
   /**
-   * Creates a new bitmap canvas
-   * @param width Width in pixels
-   * @param height Height in pixels
+   * Creates a new canvas wrapper
+   * @param width Canvas width in pixels
+   * @param height Canvas height in pixels
    */
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
-    this.data = new Uint8Array(width * height * 4);
-
-    // Initialize with transparent black
-    this.data.fill(0);
+    this.canvas = createCanvas(width, height);
+    this.ctx = this.canvas.getContext();
   }
 
   /**
@@ -42,21 +40,18 @@ class BitmapCanvas {
    * @param color RGB color values
    */
   fillSolid(color: RGB): void {
-    for (let i = 0; i < this.data.length; i += 4) {
-      this.data[i] = color.r; // R
-      this.data[i + 1] = color.g; // G
-      this.data[i + 2] = color.b; // B
-      this.data[i + 3] = 255; // A (fully opaque)
-    }
+    this.ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+    this.ctx.fillRect(0, 0, this.width, this.height);
   }
 
   /**
-   * Renders simple text on the canvas (center-aligned only in this version)
+   * Renders text on the canvas
    * @param text Text to render
    * @param color Text color
-   * @param fontSize Approximate font size (used for scaling)
+   * @param fontSize Font size (in pixels)
    * @param align Horizontal alignment
    * @param vAlign Vertical alignment
+   * @param fontFamily Font family to use
    */
   renderText(
     text: string,
@@ -64,58 +59,75 @@ class BitmapCanvas {
     fontSize: number = 14,
     align: "left" | "center" | "right" = "center",
     vAlign: "top" | "middle" | "bottom" = "middle",
+    fontFamily: string = "sans-serif",
   ): void {
     if (!text) return;
 
-    // This is a very simplified text renderer for demonstration
-    // A real implementation would use proper font rendering
+    // Configure text properties
+    this.ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+    this.ctx.font = `${fontSize}px ${fontFamily}`;
+    this.ctx.textAlign = align;
+    this.ctx.textBaseline = vAlign;
 
-    // Scale the font size to determine how many characters fit
-    const scaleFactor = Math.max(1, Math.floor(fontSize / 10));
-    const charWidth = 6 * scaleFactor;
-    const charHeight = 8 * scaleFactor;
-
-    // Calculate starting position based on alignment
-    let startX: number;
+    // Calculate position based on alignment
+    // For x, textAlign handles the alignment
+    let x: number;
     switch (align) {
       case "left":
-        startX = 5;
+        x = 10; // Left padding
         break;
       case "right":
-        startX = this.width - (text.length * charWidth) - 5;
+        x = this.width - 10; // Right padding
         break;
       case "center":
       default:
-        startX = (this.width - (text.length * charWidth)) / 2;
+        x = this.width / 2;
     }
 
-    let startY: number;
+    // For y, we need to calculate based on textBaseline
+    let y: number;
     switch (vAlign) {
       case "top":
-        startY = 5;
+        y = 10; // Top padding
         break;
       case "bottom":
-        startY = this.height - charHeight - 5;
+        y = this.height - 10; // Bottom padding
         break;
       case "middle":
       default:
-        startY = (this.height - charHeight) / 2;
+        y = this.height / 2;
     }
 
-    // For simplicity, we're just going to draw colored blocks for each character
-    // In a real implementation, this would use actual font rendering
-    for (let i = 0; i < text.length; i++) {
-      const x = startX + (i * charWidth);
-      const y = startY;
+    // Handle text wrapping if it would overflow
+    const textWidth = this.ctx.measureText(text).width;
+    if (textWidth > this.width - 20) { // Allow for 10px padding on each side
+      // Multi-line rendering - simplified approach for our basic canvas
+      const words = text.split(" ");
+      const maxWordsPerLine = Math.floor((this.width - 20) / (fontSize * 0.6));
+      const lines: string[] = [];
 
-      // Draw a simple colored block representing each character
-      this.drawRect(
-        x,
-        y,
-        charWidth - 1,
-        charHeight,
-        color,
-      );
+      // Break text into lines with roughly equal words per line
+      for (let i = 0; i < words.length; i += maxWordsPerLine) {
+        lines.push(words.slice(i, i + maxWordsPerLine).join(" "));
+      }
+
+      // Calculate starting Y position for multiple lines
+      const lineHeight = fontSize * 1.2; // Add some line spacing
+      let startY = y;
+
+      if (vAlign === "middle") {
+        startY = y - ((lines.length - 1) * lineHeight) / 2;
+      } else if (vAlign === "bottom") {
+        startY = y - (lines.length - 1) * lineHeight;
+      }
+
+      // Render each line
+      lines.forEach((line, index) => {
+        this.ctx.fillText(line, x, startY + index * lineHeight);
+      });
+    } else {
+      // Single line rendering
+      this.ctx.fillText(text, x, y);
     }
   }
 
@@ -128,20 +140,8 @@ class BitmapCanvas {
    * @param color Fill color
    */
   drawRect(x: number, y: number, width: number, height: number, color: RGB): void {
-    const startX = Math.max(0, Math.min(this.width - 1, Math.floor(x)));
-    const startY = Math.max(0, Math.min(this.height - 1, Math.floor(y)));
-    const endX = Math.max(0, Math.min(this.width, Math.floor(x + width)));
-    const endY = Math.max(0, Math.min(this.height, Math.floor(y + height)));
-
-    for (let py = startY; py < endY; py++) {
-      for (let px = startX; px < endX; px++) {
-        const idx = (py * this.width + px) * 4;
-        this.data[idx] = color.r; // R
-        this.data[idx + 1] = color.g; // G
-        this.data[idx + 2] = color.b; // B
-        this.data[idx + 3] = 255; // A
-      }
-    }
+    this.ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+    this.ctx.fillRect(x, y, width, height);
   }
 
   /**
@@ -150,25 +150,7 @@ class BitmapCanvas {
    * @returns Promise containing JPEG data Buffer
    */
   toJpegBuffer(quality: number = 90): Promise<Buffer> {
-    // Convert RGBA to RGB for JPEG encoding
-    const rgbData = new Uint8Array(this.width * this.height * 3);
-
-    for (let i = 0, j = 0; i < this.data.length; i += 4, j += 3) {
-      rgbData[j] = this.data[i]; // R
-      rgbData[j + 1] = this.data[i + 1]; // G
-      rgbData[j + 2] = this.data[i + 2]; // B
-    }
-
-    // Encode as JPEG using @julusian/jpeg-turbo
-    const result = encodeJpeg(rgbData, {
-      width: this.width,
-      height: this.height,
-      quality: quality,
-      subsampling: 1, // 4:4:4 for better quality
-    });
-
-    // Return as a Promise
-    return Promise.resolve(result);
+    return this.canvas.toJpegBuffer(quality);
   }
 }
 
@@ -186,8 +168,8 @@ export class BasicButtonRenderer extends BaseButtonRenderer {
     props: ButtonVisualProps,
     options: RenderOptions,
   ): Promise<Buffer> {
-    // Create a bitmap canvas for rendering
-    const canvas = new BitmapCanvas(options.width, options.height);
+    // Create a canvas for rendering
+    const canvas = new CanvasWrapper(options.width, options.height);
 
     // Fill background
     const bgColor = props.backgroundColor || this.defaultBackgroundColor;

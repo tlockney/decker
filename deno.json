@@ -22,7 +22,8 @@
     
     "examples:rendering": "deno run --allow-all examples/rendering_examples.ts",
     "examples:state": "deno run --allow-all examples/state_rendering_example.ts",
-    "examples:actions": "deno run --allow-all examples/action_framework_example.ts"
+    "examples:actions": "deno run --allow-all examples/action_framework_example.ts",
+    "examples:font": "deno run --allow-all examples/font_rendering_example.ts"
   },
   "nodeModulesDir": "auto",
   "imports": {
