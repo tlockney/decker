@@ -12,6 +12,11 @@ import { ButtonState } from "../../state/button_state.ts";
 import { StateManager } from "../../state/state_manager.ts";
 import { DeckerConfig } from "../../config/schema.ts";
 
+// Define SpyCall interface to replace Deno.SpyCall
+interface SpyCall {
+  calls: Array<unknown[]>;
+}
+
 // Create a mock StateManager
 function createMockStateManager(): StateManager {
   // Simple mock config with two pages
@@ -153,11 +158,10 @@ Deno.test({
 
     // Verify visual indicator was shown
     assertSpyCalled(buttonState.updateVisual);
-    const updateCall =
-      (buttonState.updateVisual as unknown as { calls: Array<[Record<string, unknown>]> })
-        .calls[0][0];
+    const updateCall = (buttonState.updateVisual as unknown as SpyCall)
+      .calls[0][0] as Record<string, unknown>;
     assertEquals(typeof updateCall.text, "string");
-    assertEquals(updateCall.text.includes("page2"), true);
+    assertEquals(typeof updateCall.text === "string" && updateCall.text.includes("page2"), true);
 
     // Verify result
     assertEquals(result.status, ActionStatus.SUCCESS);

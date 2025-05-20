@@ -214,7 +214,16 @@ export class DeviceEventAction extends BaseAction {
       this.unsubscribe();
       this.unsubscribe = undefined;
     }
+
+    // Clear any other timers from showEventTriggeredIndicator
+    if (this._resetTimerId) {
+      clearTimeout(this._resetTimerId);
+      this._resetTimerId = undefined;
+    }
   }
+
+  // Store the reset timer ID for cleanup
+  private _resetTimerId?: number;
 
   /**
    * Show a visual indicator that we're waiting for an event
@@ -259,9 +268,10 @@ export class DeviceEventAction extends BaseAction {
     });
 
     // Reset after a short delay
-    setTimeout(() => {
+    this._resetTimerId = setTimeout(() => {
       context.buttonState.reset();
-    }, 1000);
+      this._resetTimerId = undefined;
+    }, 1000) as unknown as number;
   }
 
   /**

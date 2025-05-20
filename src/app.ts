@@ -46,6 +46,7 @@ import { ExecuteScriptActionFactory } from "./actions/execute_script_action.ts";
 import { HttpRequestActionFactory } from "./actions/http_request_action.ts";
 import { PageSwitchActionFactory } from "./actions/page_switch_action.ts";
 import { InlineCodeActionFactory } from "./actions/inline_code_action.ts";
+import { DeviceEventActionFactory } from "./actions/device_event_action.ts";
 
 /**
  * Options for application initialization
@@ -660,6 +661,9 @@ export class DeckerApp {
 
     // Register page switch action
     this.actionRegistry.register(new PageSwitchActionFactory(this.stateManager));
+
+    // Register device event action
+    this.actionRegistry.register(new DeviceEventActionFactory(this.deviceManager));
   }
 
   /**

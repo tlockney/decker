@@ -84,6 +84,9 @@ Deno.test("DeviceEventAction - Successful event handling", async () => {
   assertEquals((result.data as Record<string, unknown>)?.eventType, DeviceEventType.BUTTON_PRESSED);
   assertEquals((result.data as Record<string, unknown>)?.deviceSerial, "test-device");
   assertEquals((result.data as Record<string, unknown>)?.eventData, event);
+
+  // Wait for the visual indicator timeout to complete (1000ms + buffer)
+  await delay(1100);
 });
 
 Deno.test("DeviceEventAction - Ignores non-matching events", async () => {
@@ -148,6 +151,9 @@ Deno.test("DeviceEventAction - Ignores non-matching events", async () => {
   // Action should complete with success
   const result = await executePromise;
   assertEquals(result.status, ActionStatus.SUCCESS);
+
+  // Wait for the visual indicator timeout to complete (1000ms + buffer)
+  await delay(1100);
 });
 
 Deno.test("DeviceEventAction - Times out when no matching event", async () => {
