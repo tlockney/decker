@@ -17,7 +17,7 @@ function createExampleConfig() {
   return {
     version: "1.0.0",
     global_settings: {
-      log_level: "info",
+      log_level: "info" as "debug" | "info" | "warn" | "error",
     },
     devices: {
       // Will be populated dynamically when devices connect

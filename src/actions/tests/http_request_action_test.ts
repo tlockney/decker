@@ -10,6 +10,11 @@ import { HttpRequestAction, HttpRequestActionFactory } from "../http_request_act
 import { ActionContext, ActionStatus } from "../types.ts";
 import { ButtonState } from "../../state/button_state.ts";
 
+// Define SpyCall interface to replace Deno.SpyCall
+interface SpyCall {
+  calls: Array<unknown[]>;
+}
+
 // Mock ButtonState
 function createMockButtonState(): ButtonState {
   // deno-lint-ignore no-explicit-any
@@ -106,7 +111,7 @@ Deno.test({
 
       // Verify fetch was called with correct params
       assertSpyCalled(globalThis.fetch);
-      const fetchArgs = (globalThis.fetch as unknown as Deno.SpyCall).calls[0];
+      const fetchArgs = (globalThis.fetch as unknown as SpyCall).calls[0];
       assertEquals(fetchArgs[0], "https://example.com/api");
       assertEquals(fetchArgs[1].method, "GET");
 
@@ -148,7 +153,7 @@ Deno.test({
 
       // Verify fetch was called with correct params
       assertSpyCalled(globalThis.fetch);
-      const fetchArgs = (globalThis.fetch as unknown as Deno.SpyCall).calls[0];
+      const fetchArgs = (globalThis.fetch as unknown as SpyCall).calls[0];
       assertEquals(fetchArgs[0], "https://example.com/api/create");
       assertEquals(fetchArgs[1].method, "POST");
       assertEquals(fetchArgs[1].headers["Content-Type"], "application/json");
@@ -194,13 +199,13 @@ Deno.test({
 
       // First updateVisual should set "Loading..."
       assertEquals(
-        (buttonState.updateVisual as unknown as Deno.SpyCall).calls[0][0].text,
+        (buttonState.updateVisual as unknown as SpyCall).calls[0][0].text,
         "Loading...",
       );
 
       // Second updateVisual should set the extracted result
       assertEquals(
-        (buttonState.updateVisual as unknown as Deno.SpyCall).calls[1][0].text,
+        (buttonState.updateVisual as unknown as SpyCall).calls[1][0].text,
         "OK",
       );
     } finally {
@@ -240,7 +245,7 @@ Deno.test({
 
       // Verify button state was updated with error
       assertSpyCalled(buttonState.updateVisual);
-      const updateCall = (buttonState.updateVisual as unknown as Deno.SpyCall).calls[1][0];
+      const updateCall = (buttonState.updateVisual as unknown as SpyCall).calls[1][0];
       assertEquals(
         typeof updateCall.text === "string" && updateCall.text.startsWith("Error:"),
         true,
