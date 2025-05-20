@@ -96,6 +96,7 @@ export class PageSwitchAction extends BaseAction {
       }
 
       // Activate the target page
+      // Note: pushToStack is properly handled by the state manager
       await this.stateManager.activatePage(
         deviceSerial,
         this.config.pageId,

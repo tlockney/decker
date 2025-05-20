@@ -216,7 +216,7 @@ export class HttpRequestAction extends BaseAction {
             displayText = typeof value === "object" ? JSON.stringify(value) : String(value);
           }
         } catch (e) {
-          console.warn("Failed to extract JSON path:", e);
+          console.warn("Failed to extract JSON path:", e instanceof Error ? e.message : String(e));
         }
       }
 

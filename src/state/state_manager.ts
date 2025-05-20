@@ -267,6 +267,33 @@ export class StateManager {
   }
 
   /**
+   * Get all button states in the manager
+   *
+   * @returns Array of all button states
+   */
+  public getAllButtons(): ButtonState[] {
+    const allButtons: ButtonState[] = [];
+
+    for (const deviceButtons of this.buttonStates.values()) {
+      for (const button of deviceButtons.values()) {
+        allButtons.push(button);
+      }
+    }
+
+    return allButtons;
+  }
+
+  /**
+   * Get all active pages by device serial
+   *
+   * @returns Map of active pages by device serial
+   */
+  public getActivePages(): Map<string, string> {
+    // Return a copy of the active pages map
+    return new Map(this.activePages);
+  }
+
+  /**
    * Set the active page for a device
    *
    * @param deviceSerial The device serial number
@@ -417,8 +444,8 @@ export class StateManager {
     // Use default options
     const animate = options.animate ?? true;
     // For future navigation stack implementation
-    // Prefix with underscore to indicate intentionally unused
-    const _pushToStack = options.pushToStack ?? true;
+    // Comment out variable to avoid unused variable warning
+    // const pushToStack = options.pushToStack ?? true;
 
     // Check if the page exists
     if (!this.hasPage(deviceSerial, pageId)) {
