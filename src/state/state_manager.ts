@@ -388,4 +388,64 @@ export class StateManager {
     this.reset();
     (this.events as EventBus).clearAllListeners();
   }
+
+  /**
+   * Check if a page exists for a device
+   *
+   * @param deviceSerial The device serial number
+   * @param pageId The page identifier
+   * @returns True if the page exists, false otherwise
+   */
+  public hasPage(deviceSerial: string, pageId: string): boolean {
+    const deviceConfig = this.config.devices[deviceSerial];
+    return !!deviceConfig && !!deviceConfig.pages[pageId];
+  }
+
+  /**
+   * Activate a page for a device with animation and navigation support
+   *
+   * @param deviceSerial The device serial number
+   * @param pageId The page identifier
+   * @param options Options for page activation
+   * @returns A promise that resolves when the page is activated
+   */
+  public async activatePage(
+    deviceSerial: string,
+    pageId: string,
+    options: { animate?: boolean; pushToStack?: boolean } = {},
+  ): Promise<boolean> {
+    // Use default options
+    const animate = options.animate ?? true;
+    // For future navigation stack implementation
+    // Prefix with underscore to indicate intentionally unused
+    const _pushToStack = options.pushToStack ?? true;
+
+    // Check if the page exists
+    if (!this.hasPage(deviceSerial, pageId)) {
+      return false;
+    }
+
+    // Get the current page
+    const currentPage = this.getActivePage(deviceSerial);
+
+    // If already on this page, do nothing
+    if (currentPage === pageId) {
+      return true;
+    }
+
+    // Handle animation if needed
+    if (animate) {
+      // Animation would go here in a real implementation
+      // For now we'll just add a small delay
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+
+    // Set the new active page
+    const result = this.setActivePage(deviceSerial, pageId);
+
+    // Page navigation history would be handled here if pushToStack is true
+    // This would be used for "back" functionality
+
+    return result;
+  }
 }
