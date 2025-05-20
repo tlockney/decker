@@ -24,12 +24,13 @@ import { LaunchAppActionFactory } from "../src/actions/launch_app_action.ts";
 import { ExecuteScriptActionFactory } from "../src/actions/execute_script_action.ts";
 import { HttpRequestActionFactory } from "../src/actions/http_request_action.ts";
 import { PageSwitchActionFactory } from "../src/actions/page_switch_action.ts";
+import { DeviceEventActionFactory } from "../src/actions/device_event_action.ts";
 import { InlineCodeActionFactory } from "../src/actions/inline_code_action.ts";
 
 /**
  * Creates the action registry and registers action factories
  */
-function createActionRegistry(stateManager: StateManager): ActionRegistry {
+function createActionRegistry(stateManager: StateManager, deviceManager: DeviceManager): ActionRegistry {
   const registry = new ActionRegistry();
 
   // Register built-in actions
@@ -41,6 +42,9 @@ function createActionRegistry(stateManager: StateManager): ActionRegistry {
 
   // Register page switch action (requires state manager)
   registry.register(new PageSwitchActionFactory(stateManager));
+
+  // Register device event action (requires device manager)
+  registry.register(new DeviceEventActionFactory(deviceManager));
 
   // Register inline code execution action
   registry.register(new InlineCodeActionFactory());
@@ -134,21 +138,41 @@ function setupDeviceInStateManager(
           maxResponseLength: 20,
         };
       } else if (i === 4) {
-        // Inline code execution to generate a random color
+        // Device event listener for button press event
         mainButtons[i.toString()] = {
-          type: "inline_code",
-          text: "Random Color",
+          type: "device_event",
+          text: "Event\nListener",
           color: "#8B4513", // Brown
           text_color: "#FFFFFF",
+          eventType: DeviceEventType.BUTTON_PRESSED,
+          buttonIndex: 5, // Listen for button 5 presses
+          showIndicator: true,
+          timeout: 10000, // 10 second timeout
+        };
+      } else if (i === 5) {
+        // Button that triggers the event listener
+        mainButtons[i.toString()] = {
+          type: "inline_code",
+          text: "Press Me",
+          color: "#2E8B57", // Sea Green
+          text_color: "#FFFFFF",
           code: `
-            // Generate a random hex color and update the button
-            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
-            // Update button color
+            // Simply return success - this button is meant to
+            // trigger the device_event action on button 4
             context.buttonState.updateVisual({
-              color: randomColor,
-              text: "Random\\nColor"
+              color: "#00AA00",
+              text: "Pressed!"
             });
-            return randomColor;
+            
+            // Reset after a short delay
+            setTimeout(() => {
+              context.buttonState.updateVisual({
+                color: "#2E8B57", 
+                text: "Press Me"
+              });
+            }, 500);
+            
+            return "Button pressed";
           `,
           showResult: false,
         };
@@ -388,11 +412,11 @@ async function main(): Promise<void> {
     // Create the state manager
     const stateManager = new StateManager(config);
 
-    // Create the action registry and register action factories
-    const actionRegistry = createActionRegistry(stateManager);
-
     // Create the device manager
     const deviceManager = new DeviceManager();
+
+    // Create the action registry and register action factories
+    const actionRegistry = createActionRegistry(stateManager, deviceManager);
 
     // Create the rendering manager
     const renderingManager = new RenderingManager();
@@ -476,7 +500,8 @@ async function main(): Promise<void> {
     console.log("- Press 'Tools' button to switch to the Tools page");
     console.log("- Press 'Calculator' to launch calculator app");
     console.log("- Press 'GitHub API' to fetch a random quote from GitHub");
-    console.log("- Press 'Random Color' to generate and apply a random color");
+    console.log("- 'Event Listener' will wait for 'Press Me' button to be pressed");
+    console.log("- Press 'Press Me' to trigger the event listener on button 4");
     console.log("\nWeather Page:");
     console.log("- Press 'Back' to return to the main page");
     console.log("- Press city buttons to fetch current weather for that city");

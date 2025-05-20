@@ -41,6 +41,19 @@ export class ActionRegistry {
   }
 
   /**
+   * Register multiple action factories
+   * @param factories The action factories to register
+   * @returns This registry for chaining
+   * @throws Error if a factory for the same type is already registered
+   */
+  registerFactories(factories: ActionFactory[]): ActionRegistry {
+    for (const factory of factories) {
+      this.register(factory);
+    }
+    return this;
+  }
+
+  /**
    * Unregister an action factory
    * @param type The action type to unregister
    * @returns true if unregistered, false if not found

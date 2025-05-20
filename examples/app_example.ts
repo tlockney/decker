@@ -7,7 +7,7 @@
  * to create a Stream Deck application with minimal code.
  */
 
-import { DeckerApp } from "../mod.ts";
+import { DeckerApp, DeviceEventType } from "../mod.ts";
 
 /**
  * Creates a simple configuration for the example
@@ -16,7 +16,7 @@ function createExampleConfig() {
   return {
     version: "1.0.0",
     global_settings: {
-      log_level: "info",
+      log_level: "info" as "info",
     },
     devices: {
       // Will be populated dynamically when devices connect

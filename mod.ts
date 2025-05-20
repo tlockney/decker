@@ -21,16 +21,78 @@ export { StreamDeckDevice } from "./src/devices/stream_deck_device.ts";
 export * from "./src/cli/mod.ts";
 
 // Re-export configuration system
-export * from "./src/config/mod.ts";
+export {
+  ConfigLoader,
+  ConfigLoadResult,
+  ConfigurationError,
+  DEFAULT_CONFIG_FILENAME,
+} from "./src/config/loader.ts";
+export {
+  configSchema,
+  ConfigValidator,
+  validateButton,
+  validateConfig,
+  validateDevice,
+  validateDial,
+  validateGlobalSettings,
+  validatePage,
+  ValidationError,
+} from "./src/config/validator.ts";
+export * from "./src/config/schema.ts";
 
-// Re-export action framework
-export * from "./src/actions/mod.ts";
+// Re-export action framework core
+export {
+  Action,
+  ActionContext,
+  ActionEvent,
+  ActionEventData,
+  ActionFactory,
+  ActionOptions,
+  ActionResult,
+  ActionStatus,
+} from "./src/actions/types.ts";
+export { ActionRegistry } from "./src/actions/registry.ts";
+export {
+  ActionExecutionEventData,
+  ActionExecutor,
+  ActionResultEventData,
+  ExecutorEvent,
+  ExecutorEventData,
+} from "./src/actions/executor.ts";
+export { BaseAction } from "./src/actions/base_action.ts";
+export { StateActionIntegration } from "./src/actions/state_integration.ts";
+
+// Re-export specific action implementations
+export { LaunchAppAction, LaunchAppActionFactory } from "./src/actions/launch_app_action.ts";
+export {
+  ExecuteScriptAction,
+  ExecuteScriptActionFactory,
+} from "./src/actions/execute_script_action.ts";
+export { HttpRequestAction, HttpRequestActionFactory } from "./src/actions/http_request_action.ts";
+export { PageSwitchAction, PageSwitchActionFactory } from "./src/actions/page_switch_action.ts";
+export { InlineCodeAction, InlineCodeActionFactory } from "./src/actions/inline_code_action.ts";
 
 // Re-export state management
-export * from "./src/state/mod.ts";
+export {
+  ButtonState,
+  ButtonStateEvent,
+  ButtonStateOptions,
+  ButtonVisual,
+} from "./src/state/button_state.ts";
+export { StateManager, StateManagerEvent } from "./src/state/state_manager.ts";
+export {
+  EnhancedStateManager,
+  EnhancedStateManagerEvent,
+} from "./src/state/state_manager_enhanced.ts";
+export { type PersistenceOptions, StatePersistence } from "./src/state/persistence.ts";
+export { EventBus, EventEmitter } from "./src/state/events.ts";
 
 // Re-export rendering system
-export * from "./src/rendering/mod.ts";
+export { RenderingManager } from "./src/rendering/rendering_manager.ts";
+export { Renderer } from "./src/rendering/renderer.ts";
+export { BasicRenderer } from "./src/rendering/basic_renderer.ts";
+export { ImageRenderer } from "./src/rendering/image_renderer.ts";
+export { StateRenderer } from "./src/rendering/state_renderer.ts";
 
 // Re-export utility functions
 export * from "./src/utils/utils.ts";

@@ -512,9 +512,14 @@ export class DeckerApp {
     event: ExecutorEvent.QUEUE_CLEARED,
     callback: (data: QueueClearedEventData) => void,
   ): () => void;
-  onActionEvent(
+  // Implementation signature must match or be more general than overload signatures
+  onActionEvent<T extends ExecutorEventData>(
     event: ExecutorEvent,
-    callback: (data: unknown) => void,
+    callback:
+      | ((data: ActionExecutionEventData) => void)
+      | ((data: ActionResultEventData) => void)
+      | ((data: QueueClearedEventData) => void)
+      | ((data: T) => void),
   ): () => void {
     // Use type casting to handle the various event types
     if (event === ExecutorEvent.ACTION_STARTED) {
@@ -594,10 +599,18 @@ export class DeckerApp {
     callback: (data: ConfigurationChangedEvent) => void,
   ): () => void;
 
-  // General implementation
+  // Implementation signature must match or be more general than overload signatures
   onStateEvent(
-    event: string,
-    callback: (data: unknown) => void,
+    event: EnhancedStateManagerEvent | StateManagerEvent | string,
+    callback:
+      | ((data: NavigationEvent) => void)
+      | ((data: PersistenceEvent) => void)
+      | ((data: ButtonAddedEvent) => void)
+      | ((data: ButtonRemovedEvent) => void)
+      | ((data: PageActivatedEvent) => void)
+      | ((data: StateResetEvent) => void)
+      | ((data: ConfigurationChangedEvent) => void)
+      | ((data: unknown) => void),
   ): () => void {
     // Handle enhanced state manager events
     if (Object.values(EnhancedStateManagerEvent).includes(event as EnhancedStateManagerEvent)) {

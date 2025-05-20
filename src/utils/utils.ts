@@ -109,3 +109,12 @@ export function debounce<T extends (...args: any[]) => unknown>(
     timeout = setTimeout(() => func(...args), wait);
   };
 }
+
+/**
+ * Returns a promise that resolves after the specified time
+ * @param ms Time to wait in milliseconds
+ * @returns A promise that resolves after the delay
+ */
+export function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

@@ -16,4 +16,5 @@ export * from "./launch_app_action.ts";
 export * from "./execute_script_action.ts";
 export * from "./http_request_action.ts";
 export * from "./page_switch_action.ts";
+export * from "./device_event_action.ts";
 export * from "./inline_code_action.ts";
