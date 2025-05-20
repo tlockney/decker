@@ -190,6 +190,32 @@ Executes JavaScript code:
 }
 ```
 
+### Device Event Action
+
+Waits for a specific device event to occur:
+
+```json
+{
+  "type": "device_event",
+  "eventType": "buttonPressed",
+  "deviceSerial": "AC123456789",
+  "buttonIndex": 4,
+  "showIndicator": true,
+  "timeout": 60000,
+  "executeOnce": true
+}
+```
+
+Parameters:
+
+- `eventType`: The event type to listen for (required)
+- `deviceSerial`: Device serial number to filter events (optional)
+- `buttonIndex`: Button index to filter button events (optional)
+- `dialIndex`: Dial index to filter dial events (optional)
+- `showIndicator`: Whether to show a visual indicator on the button (optional, default: true)
+- `timeout`: How long to wait for the event in milliseconds (optional, default: 0 = no timeout)
+- `executeOnce`: Whether to execute once or continue listening (optional, default: true)
+
 ## Configuration Management
 
 Decker provides tools for managing configuration:
