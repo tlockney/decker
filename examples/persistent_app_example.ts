@@ -8,7 +8,13 @@
  */
 
 import { DeckerApp } from "../mod.ts";
-import { join } from "@std/path";
+import {
+  EnhancedStateManagerEvent,
+  NavigationEvent,
+  PersistenceEvent,
+} from "../src/state/state_manager_enhanced.ts";
+import { ButtonConfig } from "../src/config/schema.ts";
+import { DeviceEventType } from "../src/types/types.ts";
 
 /**
  * Creates a simple configuration for the example
@@ -48,45 +54,41 @@ async function main() {
         stateDir: "./data",
         stateFile: "persistent_app.json",
         prettyPrint: true,
-        autoSaveInterval: 5000 // Save every 5 seconds
+        autoSaveInterval: 5000, // Save every 5 seconds
       },
-      loadPersistedState: true
+      loadPersistedState: true,
     });
 
     // Initialize the application
     await app.initialize();
-    
+
     // Check if we have saved state
     const hasState = await app.hasState();
     console.log(`Persisted state exists: ${hasState}`);
-    
+
     // Event handler for device connection
-    app.onDeviceEvent("device_connected", (deviceInfo) => {
+    app.onDeviceEvent(DeviceEventType.DEVICE_CONNECTED, (deviceInfo) => {
       // deno-lint-ignore no-explicit-any
       const info = deviceInfo as any;
       console.log(`Device connected handler: ${info.type} (${info.serialNumber})`);
-      
+
       // Set up device configuration if not exists
       setupDeviceConfig(app, info.serialNumber);
     });
-    
+
     // Register event handlers for state changes
-    app.onStateEvent("navigation_updated", (data) => {
-      // deno-lint-ignore no-explicit-any
-      const navData = data as any;
-      console.log(`Navigation updated for device ${navData.deviceSerial}: ${JSON.stringify(navData.history)}`);
+    app.onStateEvent(EnhancedStateManagerEvent.NAVIGATION_UPDATED, (data: NavigationEvent) => {
+      console.log(
+        `Navigation updated for device ${data.deviceSerial}: ${JSON.stringify(data.history)}`,
+      );
     });
-    
-    app.onStateEvent("state_saved", (data) => {
-      // deno-lint-ignore no-explicit-any
-      const saveData = data as any;
-      console.log(`State saved to ${saveData.path} at ${new Date(saveData.timestamp).toISOString()}`);
+
+    app.onStateEvent(EnhancedStateManagerEvent.STATE_SAVED, (data: PersistenceEvent) => {
+      console.log(`State saved to ${data.path} at ${new Date(data.timestamp).toISOString()}`);
     });
-    
-    app.onStateEvent("state_loaded", (data) => {
-      // deno-lint-ignore no-explicit-any
-      const loadData = data as any;
-      console.log(`State loaded from ${loadData.path} at ${new Date(loadData.timestamp).toISOString()}`);
+
+    app.onStateEvent(EnhancedStateManagerEvent.STATE_LOADED, (data: PersistenceEvent) => {
+      console.log(`State loaded from ${data.path} at ${new Date(data.timestamp).toISOString()}`);
     });
 
     // Start the application
@@ -94,7 +96,7 @@ async function main() {
 
     // Set up already connected devices
     const devices = app.getConnectedDevices();
-    
+
     for (const [serialNumber] of devices) {
       setupDeviceConfig(app, serialNumber);
     }
@@ -105,10 +107,10 @@ async function main() {
     console.log("- State will be loaded when the app starts next time");
     console.log("- Try using the counter button and then restart the app");
     console.log("\nPress Ctrl+C to exit");
-    
+
     // Create data directory if needed
     await Deno.mkdir("./data", { recursive: true });
-    
+
     // Keep running until user interrupts
     await new Promise<void>((resolve) => {
       // Handle Ctrl+C
@@ -129,22 +131,22 @@ async function main() {
 function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
   // Get the current configuration
   const config = app["config"];
-  
+
   // Skip if device already configured
   if (config.devices[serialNumber]) {
     return;
   }
-  
+
   // Get device info
   const device = app.getDevice(serialNumber);
   if (!device) return;
-  
+
   const deviceInfo = device.getInfo();
-  
+
   // Create button configurations based on the device layout
-  const mainButtons: Record<string, unknown> = {};
-  const settingsButtons: Record<string, unknown> = {};
-  
+  const mainButtons: Record<string, ButtonConfig> = {};
+  const settingsButtons: Record<string, ButtonConfig> = {};
+
   // Create buttons for the main page
   for (let i = 0; i < deviceInfo.buttonCount; i++) {
     if (i === 0) {
@@ -243,7 +245,7 @@ function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
       };
     }
   }
-  
+
   // Create buttons for the settings page
   for (let i = 0; i < deviceInfo.buttonCount; i++) {
     if (i === 0) {
@@ -265,8 +267,8 @@ function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
           return success ? "Back OK" : "No history";
         `,
         args: {
-          stateManager: app["stateManager"]
-        }
+          stateManager: app["stateManager"],
+        },
       };
     } else if (i === 1) {
       // Save state button
@@ -300,8 +302,8 @@ function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
           return "State saved";
         `,
         args: {
-          stateManager: app["stateManager"]
-        }
+          stateManager: app["stateManager"],
+        },
       };
     } else if (i === 2) {
       // Reset counter button
@@ -346,8 +348,8 @@ function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
           return "Counter reset";
         `,
         args: {
-          stateManager: app["stateManager"]
-        }
+          stateManager: app["stateManager"],
+        },
       };
     } else {
       // Generic buttons
@@ -359,7 +361,7 @@ function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
       };
     }
   }
-  
+
   // Update the config
   config.devices[serialNumber] = {
     name: deviceInfo.type,
@@ -373,10 +375,10 @@ function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
       },
     },
   };
-  
+
   // Update the application config
   app.updateConfig(config);
-  
+
   console.log(`Device ${serialNumber} configured with pages: main, settings`);
 }
 

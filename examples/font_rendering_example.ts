@@ -1,6 +1,6 @@
 /**
  * Font Rendering Example
- * 
+ *
  * Demonstrates the enhanced font rendering capabilities of the BasicButtonRenderer
  * using the canvas library.
  */
@@ -102,7 +102,7 @@ const examples = [
 // Apply each example to its button
 for (const example of examples) {
   console.log(`Setting button ${example.buttonIndex} with text: ${example.text}`);
-  
+
   await renderingManager.updateButton(device, example.buttonIndex, {
     text: example.text,
     backgroundColor: example.bgColor,

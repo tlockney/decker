@@ -7,7 +7,9 @@
  * to create a Stream Deck application with minimal code.
  */
 
-import { DeckerApp, DeviceEventType } from "../mod.ts";
+import { DeckerApp } from "../mod.ts";
+import { DeviceEventType } from "../src/types/types.ts";
+import { ButtonConfig } from "../src/config/schema.ts";
 
 /**
  * Creates a simple configuration for the example
@@ -45,13 +47,13 @@ async function main() {
 
     // Initialize the application
     await app.initialize();
-    
+
     // Event handler for device connection
-    app.onDeviceEvent("device_connected", (deviceInfo) => {
+    app.onDeviceEvent(DeviceEventType.DEVICE_CONNECTED, (deviceInfo) => {
       // deno-lint-ignore no-explicit-any
       const info = deviceInfo as any;
       console.log(`Device connected handler: ${info.type} (${info.serialNumber})`);
-      
+
       // Set up device configuration if not exists
       setupDeviceConfig(app, info.serialNumber);
     });
@@ -61,13 +63,13 @@ async function main() {
 
     // Set up already connected devices
     const devices = app.getConnectedDevices();
-    
+
     for (const [serialNumber] of devices) {
       setupDeviceConfig(app, serialNumber);
     }
 
     console.log("\nDecker application running. Press Ctrl+C to exit.");
-    
+
     // Keep running until user interrupts
     await new Promise(() => {
       // This promise intentionally never resolves
@@ -83,22 +85,22 @@ async function main() {
 function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
   // Get the current configuration
   const config = app["config"];
-  
+
   // Skip if device already configured
   if (config.devices[serialNumber]) {
     return;
   }
-  
+
   // Get device info
   const device = app.getDevice(serialNumber);
   if (!device) return;
-  
+
   const deviceInfo = device.getInfo();
-  
+
   // Create button configurations based on the device layout
-  const mainButtons: Record<string, unknown> = {};
-  const toolsButtons: Record<string, unknown> = {};
-  
+  const mainButtons: Record<string, ButtonConfig> = {};
+  const toolsButtons: Record<string, ButtonConfig> = {};
+
   // Create buttons for the main page
   for (let i = 0; i < deviceInfo.buttonCount; i++) {
     if (i === 0) {
@@ -167,7 +169,7 @@ function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
       };
     }
   }
-  
+
   // Create buttons for the tools page
   for (let i = 0; i < deviceInfo.buttonCount; i++) {
     if (i === 0) {
@@ -213,7 +215,7 @@ function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
       };
     }
   }
-  
+
   // Update the config
   config.devices[serialNumber] = {
     name: deviceInfo.type,
@@ -227,10 +229,10 @@ function setupDeviceConfig(app: DeckerApp, serialNumber: string) {
       },
     },
   };
-  
+
   // Update the application config
   app.updateConfig(config);
-  
+
   console.log(`Device ${serialNumber} configured with pages: main, tools`);
 }
 
