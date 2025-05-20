@@ -373,8 +373,26 @@ export class ActionExecutor {
    * @param handler The handler function
    * @returns An unsubscribe function
    */
-  on<T extends ExecutorEventData>(event: ExecutorEvent, handler: (data: T) => void): () => void {
-    return this.events.on(event, handler);
+  on<T extends ExecutorEventData>(
+    event: ExecutorEvent.ACTION_STARTED,
+    handler: (data: ActionExecutionEventData) => void,
+  ): () => void;
+  on<T extends ExecutorEventData>(
+    event:
+      | ExecutorEvent.ACTION_COMPLETED
+      | ExecutorEvent.ACTION_FAILED
+      | ExecutorEvent.ACTION_CANCELLED,
+    handler: (data: ActionResultEventData) => void,
+  ): () => void;
+  on<T extends ExecutorEventData>(
+    event: ExecutorEvent.QUEUE_CLEARED,
+    handler: (data: QueueClearedEventData) => void,
+  ): () => void;
+  on<T extends ExecutorEventData>(
+    event: ExecutorEvent,
+    handler: (data: T) => void,
+  ): () => void {
+    return this.events.on(event, handler as (data: ExecutorEventData) => void);
   }
 
   /**
@@ -382,8 +400,26 @@ export class ActionExecutor {
    * @param event The event to unsubscribe from
    * @param handler The handler function
    */
-  off<T extends ExecutorEventData>(event: ExecutorEvent, handler: (data: T) => void): void {
-    this.events.off(event, handler);
+  off<T extends ExecutorEventData>(
+    event: ExecutorEvent.ACTION_STARTED,
+    handler: (data: ActionExecutionEventData) => void,
+  ): void;
+  off<T extends ExecutorEventData>(
+    event:
+      | ExecutorEvent.ACTION_COMPLETED
+      | ExecutorEvent.ACTION_FAILED
+      | ExecutorEvent.ACTION_CANCELLED,
+    handler: (data: ActionResultEventData) => void,
+  ): void;
+  off<T extends ExecutorEventData>(
+    event: ExecutorEvent.QUEUE_CLEARED,
+    handler: (data: QueueClearedEventData) => void,
+  ): void;
+  off<T extends ExecutorEventData>(
+    event: ExecutorEvent,
+    handler: (data: T) => void,
+  ): void {
+    this.events.off(event, handler as (data: ExecutorEventData) => void);
   }
 
   /**

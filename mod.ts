@@ -4,6 +4,9 @@
  * This file exports the public API for the Decker application.
  */
 
+// Export main application class
+export { DeckerApp, type DeckerAppOptions } from "./src/app.ts";
+
 // Re-export types
 export * from "./src/types/types.ts";
 
@@ -19,6 +22,15 @@ export * from "./src/cli/mod.ts";
 
 // Re-export configuration system
 export * from "./src/config/mod.ts";
+
+// Re-export action framework
+export * from "./src/actions/mod.ts";
+
+// Re-export state management
+export * from "./src/state/mod.ts";
+
+// Re-export rendering system
+export * from "./src/rendering/mod.ts";
 
 // Re-export utility functions
 export * from "./src/utils/utils.ts";
